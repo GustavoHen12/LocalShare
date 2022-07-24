@@ -1,3 +1,10 @@
+/*
+    Abstrai funcoes do RawSocket
+        - Cria socket
+        - Configura socket
+        - Envia
+        - Recebe
+*/
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
