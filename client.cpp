@@ -1,11 +1,10 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 #include"socket_utils.h"
 
-#include <arpa/inet.h>
-#include <unistd.h>
-#define PORT 8080
 
 int main(int argc, char const* argv[]){
     int client_socket = ConexaoRawSocket("lo");

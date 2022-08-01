@@ -1,3 +1,6 @@
+#ifndef __SOCKET_UTILS__
+#define __SOCKET_UTILS__
+
 /*
     Abstrai funcoes do RawSocket
         - Cria socket
@@ -16,4 +19,10 @@
 #include <stdio.h>
 #include <netinet/in.h>
 
+/*
+* Função cria conexão com raw socket e retorna 
+* o numero do raw socket
+*/
 int ConexaoRawSocket(char *device);
+
+#endif
