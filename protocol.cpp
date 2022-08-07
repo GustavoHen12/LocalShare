@@ -197,6 +197,7 @@ int send_message(uint8_t type, ifstream& data, vector<uint8_t>& param) {
 
     // Envia mensagem inicial e verifica resposta
     send_socket(start_msg);
+    sleep(5);
     // msg_t *resolve = get_message();
     // printMessage(resolve);
 
@@ -209,10 +210,25 @@ int send_message(uint8_t type, ifstream& data, vector<uint8_t>& param) {
         if((type == PUT_TYPE && app_info.type == CLIENT) || (type == GET_TYPE && app_info.type == SERVER)){
             vector<uint8_t> size_f;
             size_f.push_back(fileSize);
-            send_socket(new_message(SIZEF_TYPE, size_f));
+            size_f.push_back((uint8_t) 'a');
+            size_f.push_back((uint8_t) 'a');
+            size_f.push_back((uint8_t) 'a');
+            size_f.push_back((uint8_t) 'a');
+            size_f.push_back((uint8_t) 'a');
+            size_f.push_back((uint8_t) 'a');
+            size_f.push_back((uint8_t) 'a');
+            size_f.push_back((uint8_t) 'a');
+            size_f.push_back((uint8_t) 'a');
+            size_f.push_back((uint8_t) 'a');
+            size_f.push_back((uint8_t) 'a');
+            size_f.push_back((uint8_t) 'a');
+            msg_t *size_msg = new_message(SIZEF_TYPE, size_f);
+            send_socket(size_msg);
             // msg_t *resolve = get_message();
             // printMessage(resolve);
         }
+        
+        sleep(5);
         
         // Coloca cursor no inicio do arquivo
         data.seekg (0, ios::beg);
@@ -233,7 +249,8 @@ int send_message(uint8_t type, ifstream& data, vector<uint8_t>& param) {
 
                 // Converte para vetor e envia
                 vector<uint8_t> vec_data = charToVector(datablock, bytes);
-                send_socket(new_message(DATA_TYPE, vec_data));
+                msg_t *data_msg = new_message(DATA_TYPE, vec_data);
+                send_socket(data_msg);
                 
                 // Decrementa e verificar se já acabou
                 to_send -= bytes;
@@ -241,10 +258,10 @@ int send_message(uint8_t type, ifstream& data, vector<uint8_t>& param) {
                     break;
             }
 
-            msg_t *answer = get_message();
-            if(answer->type != OK_TYPE){
-                break;
-            }
+            // msg_t *answer = get_message();
+            // if(answer->type != OK_TYPE){
+            //     break;
+            // }
         }
 
         // Tem que receber algo ?
