@@ -2,11 +2,11 @@
 #define __PROTOCOL__
 
 #include <stdlib.h>
-#include <bits/stdc++.h>
 #include <iostream>
 #include <fstream>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <bits/stdc++.h>
 using namespace std;
 
 #include"socket_utils.h"
@@ -39,8 +39,8 @@ using namespace std;
 
 typedef struct {
     uint8_t type;         // Tipo = 6bits
-    uint8_t msg_size; // Tamanho da mensagem = 8bits
-    uint8_t sequence;     // Sequencia da mensagem = 6bits
+    uint8_t size;         // Tamanho da mensagem = 6bits
+    uint8_t sequence;     // Sequencia da mensagem = 4bits
     vector<uint8_t> data_bytes; // Dados = 0 ~ 63bytes
     uint8_t parity;   // Paridade 8bits
 } msg_t;
@@ -49,6 +49,7 @@ typedef struct {
     int sequence;     // Sequencia das mensagens
     int type;         // Se cliente ou servidor
     int socket;
+    int target_sequence; // Sequencia do outro
 } app_info_t;
 
 app_info_t app_info;

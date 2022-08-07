@@ -9,11 +9,19 @@ vector<uint8_t> charToVector(char *data, int size){
 
     return dt;
 }
+
+int incrementSequence(int sequence){
+    int max_sequence = 15; // 2^4 -1
+    if(sequence >= max_sequence)
+        return 0;
+    return sequence++;
+}
+
 /*
 * Função recebe como parametro uma mensagem e envia ela para o socket
 */
 void send_socket(msg_t *msg){
-    int max_size = msg->msg_size +  5;
+    int max_size = msg->size +  5;
     uint8_t msg_bytes[max_size];
 
     int msg_bytes_size = 0;
@@ -22,7 +30,7 @@ void send_socket(msg_t *msg){
     msg_bytes[0] = START_MARKER;
 
     // Tamanho ocupando 6bits
-    msg_bytes[1] = (msg->msg_size & 0b00111111) << 2;
+    msg_bytes[1] = (msg->size & 0b00111111) << 2;
 
     // Sequencia 4bis = 2bits anterior e 2 depois
     msg_bytes[1] = msg_bytes[1] | (msg->sequence & 0b00001100);
@@ -33,7 +41,7 @@ void send_socket(msg_t *msg){
 
     // Copia dados
     msg_bytes_size = 3;
-    for(int i = 0; i < msg->msg_size; i++){
+    for(int i = 0; i < msg->size; i++){
         msg_bytes[i] = msg->data_bytes[i];
         msg_bytes_size++;
     }
@@ -43,6 +51,9 @@ void send_socket(msg_t *msg){
     msg_bytes_size++;
     
     send(app_info.socket, msg_bytes, msg_bytes_size, 0);
+    
+    // Incrementa sequencia
+    app_info.sequence = incrementSequence(app_info.sequence);
 }
 
 /*
@@ -63,7 +74,7 @@ msg_t * new_message(uint8_t type, vector<uint8_t> &data) {
     msg->sequence = (app_info.sequence & 0b00001111);
 
     if(data.size() > 0){
-        msg->msg_size = (data.size() & 0b00111111);
+        msg->size = (data.size() & 0b00111111);
         
         int total_1 = 0;
         // Calcula paridade
@@ -75,9 +86,45 @@ msg_t * new_message(uint8_t type, vector<uint8_t> &data) {
         }
         msg->data_bytes = data;
     } else {
-        msg->msg_size = 0;
+        msg->size = 0;
     }
 
+    return msg;
+}
+
+msg_t *bytesToMessage(vector<uint8_t> buffer, int size){
+    msg_t *msg;
+    msg = (msg_t*) calloc(1, sizeof(msg_t));
+    if(!msg){
+        return NULL;
+    }
+
+    // Marcador de inicio: 8bits
+    uint8_t startMarker = buffer[0];
+    if(startMarker != START_MARKER)
+        return NULL;
+
+    // Tamanho da mensagem: 6bits
+    msg->size = (buffer[1] & 0b11111100) >> 2;
+
+    msg->sequence = (buffer[1] & 0b00000011) << 2;
+    msg->sequence = msg->sequence | ((buffer[2] & 0b11000000) >> 6);
+
+    // Tipo: 6bits
+    msg->type = (buffer[2] & 0b00111111);
+
+    // Dados
+    int data_size = 0 | msg->size;
+    vector<uint8_t> data;
+    for (int i = 0; i < data_size; i++){
+        data.push_back(buffer[i + 2]);
+    }
+    msg->data_bytes = data;
+
+    // Paridade: 8bits
+    msg->parity = buffer[data_size + 2];
+
+    // TODO: Verifica paridade
     return msg;
 }
 
@@ -88,6 +135,19 @@ void init_protocol(int type){
 }
 
 msg_t *get_message(){
+    // TODO: Implementar timeout
+    do{
+        vector<uint8_t> buf(5000);
+        int bytes = recv(app_info.socket, buf.data(), buf.size(), 0);
+        msg_t *msg = bytesToMessage(buf, bytes);
+        
+        // Verifica se a mensagem que foi recebida é a esperada
+        if(msg != NULL && (msg->sequence == app_info.target_sequence)){
+            app_info.target_sequence = incrementSequence(app_info.target_sequence);
+            return msg;
+        }
+    } while(1);
+    
     return NULL;
 }
 
@@ -141,9 +201,9 @@ int send_message(uint8_t type, ifstream data, vector<uint8_t>& param, int origin
             }
 
             msg_t *answer = get_message();
-            // if(answer->type == ERRO){
-            //     break;
-            // }
+            if(answer->type != OK_TYPE){
+                break;
+            }
         }
 
         // Tem que receber algo ?
