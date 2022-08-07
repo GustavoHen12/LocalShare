@@ -1,10 +1,6 @@
 #include"protocol.h"
 
-void init_protocol(int type){
-    app_info.sequence = 0;
-    app_info.type = type;
-}
-
+/************ UTIL ************/
 vector<uint8_t> charToVector(char *data, int size){
     vector<uint8_t> dt(size);
     for(int i = 0; i < size; i++){
@@ -13,7 +9,9 @@ vector<uint8_t> charToVector(char *data, int size){
 
     return dt;
 }
-
+/*
+* Função recebe como parametro uma mensagem e envia ela para o socket
+*/
 void send_socket(msg_t *msg){
     int max_size = msg->msg_size +  5;
     uint8_t msg_bytes[max_size];
@@ -47,9 +45,9 @@ void send_socket(msg_t *msg){
     send(app_info.socket, msg_bytes, msg_bytes_size, 0);
 }
 
-int wait_answer(){
-    return 0;
-}
+/*
+* A partir do tipo e do vetor de dados cria uma nova mensagem
+*/
 
 //TODO: Arrumar calculo de paridade
 msg_t * new_message(uint8_t type, vector<uint8_t> &data) {
@@ -79,6 +77,18 @@ msg_t * new_message(uint8_t type, vector<uint8_t> &data) {
     } else {
         msg->msg_size = 0;
     }
+
+    return msg;
+}
+
+/************ FUNÇÕES DO PROTOCOLO ************/
+void init_protocol(int type){
+    app_info.sequence = 0;
+    app_info.type = type;
+}
+
+msg_t *get_message(){
+    return NULL;
 }
 
 int send_message(uint8_t type, ifstream data, vector<uint8_t>& param, int origin) {
@@ -91,38 +101,49 @@ int send_message(uint8_t type, ifstream data, vector<uint8_t>& param, int origin
 
     // Envia mensagem inicial e verifica resposta
     send_socket(start_msg);
-    int resolve = wait_answer();
+    msg_t *resolve = get_message();
 
     if(data.is_open()) {
         // Verifica tamanho do arquivo
         streampos size = data.tellg();
         long long fileSize = size;
 
-        // precisa mandar tamanho do arquivo ?
+        // Manda tamanho do arquivo se necessário
         if((type == PUT_TYPE && app_info.type == CLIENT) || (type == GET_TYPE && app_info.type == SERVER)){
-            // manda tamanho arquivo
             send_socket(new_message(SIZEF_TYPE, param));
-            int resolve = wait_answer();
+            msg_t *resolve = get_message();
         }
         
         // Coloca cursor no inicio do arquivo
         data.seekg (0, ios::beg);
-
-        // Enquanto não chegou ao fim
+        
+        // Envia dados
         long long to_send = fileSize;
         char *datablock;
         while(to_send > 0){
-            // Manda 4 de uma vez
+            // Manda 4 pacotes de uma vez
             for(int i = 0; i < 4; i++){
+                // Pega tamanho em bytes do bloco a ser enviado
                 int bytes = to_send < DATA_SIZE_BYTES ? to_send : DATA_SIZE_BYTES;
                 datablock = new char[bytes];
+                
+                // Le o bloco
                 data.read (datablock, bytes);
 
-                send_socket(new_message(DATA_TYPE, charToVector(datablock, bytes)));
+                // Converte para vetor e envia
+                vector<uint8_t> vec_data = charToVector(datablock, bytes);
+                send_socket(new_message(DATA_TYPE, vec_data));
+                
+                // Decrementa e verificar se já acabou
                 to_send -= bytes;
+                if(to_send <= 0)
+                    break;
             }
 
-
+            msg_t *answer = get_message();
+            // if(answer->type == ERRO){
+            //     break;
+            // }
         }
 
         // Tem que receber algo ?

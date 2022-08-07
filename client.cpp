@@ -2,12 +2,15 @@
 #include<stdlib.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <bits/stdc++.h>
+using namespace std;
 
 #include"socket_utils.h"
 
 
 int main(int argc, char const* argv[]){
-    int client_socket = ConexaoRawSocket("lo");
+    char *mode = "lo";
+    int client_socket = conect_raw_socket(mode);
 
     char* hello = "Hello from client";
     char buffer[1024] = { 0 };

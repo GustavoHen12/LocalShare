@@ -1,6 +1,6 @@
 #include"socket_utils.h"
 
-int ConexaoRawSocket(char *device)
+int conect_raw_socket(char *device)
 {
   int soquete;
   struct ifreq ir;

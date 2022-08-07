@@ -1,4 +1,3 @@
-// #include<stdio.h>
 #include<stdlib.h>
 #include <bits/stdc++.h>
 
@@ -6,12 +5,16 @@
 
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <bits/stdc++.h>
+using namespace std;
+
 #define PORT 8080
 
 using namespace std;
 
 int main(int argc, char const* argv[]){
-    int server_socket = ConexaoRawSocket("lo");
+    char *mode = "lo";
+    int server_socket = conect_raw_socket(mode);
     // int server_fd = ConexaoRawSocket("lo");
 
     char buffer[1024] = { 0 };
