@@ -5,22 +5,20 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#include"socket_utils.h"
+#include"protocol.h"
 
 
 int main(int argc, char const* argv[]){
     char *mode = "lo";
     int client_socket = conect_raw_socket(mode);
+    init_protocol(CLIENT, client_socket, 0, 2);
 
-    char* hello = "Hello from client";
-    char buffer[1024] = { 0 };
+    ifstream input_file ("teste.txt", ios::binary);
+    char *param_str = "cp_test.txt";
+    vector<uint8_t> param = charToVector(param_str, 11);
 
-    send(client_socket, hello, strlen(hello), 0);
-    printf("Hello message sent\n");
-    
-    read(client_socket, buffer, 1024);
+    send_message(PUT_TYPE, input_file, param);
+
     close(client_socket);
-    
-    printf("%s\n", buffer);
     return 0;
 }

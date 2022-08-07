@@ -50,15 +50,17 @@ typedef struct {
     int type;         // Se cliente ou servidor
     int socket;
     int target_sequence; // Sequencia do outro
+    int last_type; // Para uso em loopback
 } app_info_t;
-
-app_info_t app_info;
 
 /****** FUNCTIONS ******/
 
-void init_protocol(int type);
+void init_protocol(int type, int socket, int sequence, int target_sequence);
 
-int send_message(uint8_t type, ifstream data, vector<uint8_t>& param, int origin);
+int send_message(uint8_t type, ifstream& data, vector<uint8_t>& param);
 
+vector<uint8_t> charToVector(char *data, int size);
+
+msg_t *get_message();
 
 #endif
