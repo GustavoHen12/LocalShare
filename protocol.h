@@ -1,5 +1,5 @@
-#ifndef __SOCKET_UTILS__
-#define __SOCKET_UTILS__
+#ifndef __PROTOCOL__
+#define __PROTOCOL__
 
 #include <stdlib.h>
 #include <bits/stdc++.h>
@@ -57,7 +57,7 @@ app_info_t app_info;
 
 void init_protocol(int type);
 
-int send_message(uint8_t type, vector<uint8_t> data, vector<uint8_t>& params);
+int send_message(uint8_t type, ifstream data, vector<uint8_t>& param, int origin);
 
 
 #endif

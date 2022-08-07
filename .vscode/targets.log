@@ -1,0 +1,430 @@
+make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+# GNU Make 4.3
+# Built for x86_64-redhat-linux-gnu
+# Copyright (C) 1988-2020 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
+# Make data base, printed on Sun Aug  7 10:09:19 2022
+
+# Variables
+
+# environment
+GDK_BACKEND = x11
+# environment
+LC_ALL = C
+# environment
+NO_AT_BRIDGE = 1
+# environment
+GJS_DEBUG_OUTPUT = stderr
+# makefile (from 'makefile', line 6)
+H_SOURCE_CLIENT = commands.h protocol.h socket_utils.h
+# environment
+VSCODE_CWD = /home/gustavo
+# makefile (from 'makefile', line 2)
+CPP_SOURCE = $(wildcard *.cpp)
+# environment
+GDM_LANG = pt_BR.UTF-8
+# default
+MAKE_COMMAND := make
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+ 
+# makefile (from 'makefile', line 3)
+H_SOURCE = $(wildcard *.h)
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# default
+.VARIABLES := 
+# environment
+PWD = /home/gustavo/Documentos/UFPR/Redes1/LocalShare
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# environment
+HOSTNAME = fedora
+# environment
+LSCOLORS = Gxfxcxdxbxegedabagacad
+# environment
+MAIL = /var/spool/mail/gustavo
+# environment
+XDG_DATA_DIRS = /home/gustavo/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/
+# environment
+OLDPWD = /home/gustavo
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# automatic
+%F = $(notdir $%)
+# environment
+VSCODE_CODE_CACHE_PATH = /home/gustavo/.config/Code/CachedData/3b889b090b5ad5793f524b5d1d39fda662b96a2a
+# makefile (from 'makefile', line 11)
+OBJ_CLIENT = $(CPP_SOURCE_CLIENT:.cpp=.o)
+# environment
+LANG = C
+# environment
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.GLBGQ1
+# default
+.LOADED := 
+# default
+.INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
+# makefile
+MAKEFLAGS = pqrR
+# makefile
+CURDIR := /home/gustavo/Documentos/UFPR/Redes1/LocalShare
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+# environment
+LESSOPEN = ||/usr/bin/lesspipe.sh %s
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# environment
+MFLAGS = -pqrR
+# environment
+SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
+# default
+.SHELLFLAGS := -c
+# environment
+WAYLAND_DISPLAY = wayland-0
+# environment
+HISTSIZE = 50000
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# environment
+P9K_SSH = 0
+# environment
+XDG_SESSION_DESKTOP = gnome
+# makefile (from 'makefile', line 1)
+MAKEFILE_LIST := makefile
+# automatic
+@F = $(notdir $@)
+# environment
+ZSH = /home/gustavo/.oh-my-zsh
+# environment
+VSCODE_PID = 4879
+# environment
+XDG_SESSION_TYPE = wayland
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# environment
+SESSION_MANAGER = local/unix:@/tmp/.ICE-unix/1720,unix/unix:/tmp/.ICE-unix/1720
+# automatic
+*F = $(notdir $*)
+# environment
+CHROME_DESKTOP = code-url-handler.desktop
+# environment
+DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# environment
+VSCODE_NLS_CONFIG = {"locale":"pt-br","availableLanguages":{},"_languagePackSupport":true}
+# default
+MAKE_HOST := x86_64-redhat-linux-gnu
+# makefile
+SHELL = /bin/sh
+# default
+MAKECMDGOALS := all
+# environment
+XMODIFIERS = @im=ibus
+# environment
+GJS_DEBUG_TOPICS = JS ERROR;JS LOG
+# environment
+SHLVL = 0
+# environment
+MAKELEVEL := 0
+# default
+MAKE = $(MAKE_COMMAND)
+# environment
+PATH = /usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/home/gustavo/bin:/home/gustavo/bin
+# environment
+MOZ_GMP_PATH = /usr/lib64/mozilla/plugins/gmp-gmpopenh264/system-installed
+# default
+MAKEFILES := 
+# automatic
+^F = $(notdir $^)
+# environment
+INVOCATION_ID = 25add2a462544e56bd5752a5f90fd064
+# makefile (from 'makefile', line 9)
+H_SOURCE_SERVER = commands.h protocol.h socket_utils.h
+# environment
+USERNAME = gustavo
+# environment
+GNOME_SETUP_DISPLAY = :1
+# automatic
+?F = $(notdir $?)
+# environment
+XDG_CURRENT_DESKTOP = GNOME
+# environment
+KDEDIRS = /usr
+# environment
+LS_COLORS = 
+# automatic
++F = $(notdir $+)
+# environment
+LESS = -R
+# environment
+DESKTOP_SESSION = gnome
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = GNOME
+# 'override' directive
+GNUMAKEFLAGS := 
+# environment
+LOGNAME = gustavo
+# environment
+GIO_LAUNCHED_DESKTOP_FILE = /usr/share/applications/code.desktop
+# makefile (from 'makefile', line 5)
+CPP_SOURCE_CLIENT = commands.cpp protocol.cpp socket_utils.cpp client.cpp
+# makefile
+.DEFAULT_GOAL := all
+# environment
+SYSTEMD_EXEC_PID = 1744
+# environment
+HISTCONTROL = ignoredups
+# environment
+EDITOR = /usr/bin/nano
+# environment
+DISPLAY = :0
+# environment
+USER = gustavo
+# default
+MAKE_VERSION := 4.3
+# environment
+MANAGERPID = 1604
+# environment
+which_declare = typeset -f
+# environment
+DEBUGINFOD_URLS = https://debuginfod.fedoraproject.org/ 
+# environment
+NODE_TLS_REJECT_UNAUTHORIZED = 0
+# environment
+GIO_LAUNCHED_DESKTOP_FILE_PID = 4879
+# environment
+PAGER = less
+# environment
+_ = /usr/bin/make
+# environment
+XDG_RUNTIME_DIR = /run/user/1000
+# environment
+JOURNAL_STREAM = 8:33179
+# makefile (from 'makefile', line 8)
+CPP_SOURCE_SERVER = commands.cpp protocol.cpp socket_utils.cpp server.cpp
+# environment
+XDG_SESSION_CLASS = user
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+HOME = /home/gustavo
+# environment
+QT_IM_MODULE = ibus
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# environment
+VSCODE_IPC_HOOK = /run/user/1000/vscode-8f6c2e77-1.69.2-main.sock
+# default
+.RECIPEPREFIX := 
+# automatic
+<F = $(notdir $<)
+# default
+SUFFIXES := 
+# makefile (from 'makefile', line 19)
+DEBUG_FLAGS = -g
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink guile load
+# makefile (from 'makefile', line 15)
+CC = c++
+# environment
+XDG_MENU_PREFIX = gnome-
+# makefile (from 'makefile', line 12)
+OBJ_SERVER = $(CPP_SOURCE_SERVER:.cpp=.o)
+# environment
+GDMSESSION = gnome
+# makefile (from 'makefile', line 18)
+CC_FLAGS = -Wall -lm
+# variable set hash-table stats:
+# Load=114/1024=11%, Rehash=0, Collisions=5/154=3%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# . (device 41, inode 1639779): 26 files, 3 impossibilities.
+
+# 26 files, 3 impossibilities in 1 directories.
+
+# Implicit Rules
+
+%.o: %.c %.h
+#  recipe to execute (from 'makefile', line 32):
+	$(CC) -o $@ $< $(CC_FLAGS)
+
+# 1 implicit rules, 0 (0.0%) terminal.
+# Files
+
+client: commands.o protocol.o socket_utils.o client.o
+#  Implicit rule search has not been done.
+#  Last modified 2022-07-25 17:21:54.977149998
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/4=0%
+#  recipe to execute (from 'makefile', line 26):
+	$(CC) -o $@ $^
+
+client.o: client.cpp commands.h protocol.h socket_utils.h
+#  Implicit rule search has not been done.
+#  Implicit/static pattern stem: ''
+#  Last modified 2022-07-25 17:21:51.722177097
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# automatic
+# @ := client.o
+# automatic
+# * := 
+# automatic
+# < := client.cpp
+# automatic
+# + := client.cpp commands.h protocol.h socket_utils.h
+# automatic
+# % := 
+# automatic
+# ^ := client.cpp commands.h protocol.h socket_utils.h
+# automatic
+# ? := client.cpp protocol.h
+# automatic
+# | := 
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=2/14=14%
+#  recipe to execute (from 'makefile', line 38):
+	$(CC) -c $@ $^
+
+server.o: server.cpp commands.h protocol.h socket_utils.h
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'makefile', line 35):
+	$(CC) -c $@ $^
+
+clean:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'makefile', line 41):
+	-rm -f *~ *.o
+	
+
+server: commands.o protocol.o socket_utils.o server.o
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'makefile', line 29):
+	$(CC) -o $@ $^
+
+# Not a target:
+socket_utils.o:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-25 17:10:41.162003759
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+commands.h:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-24 15:41:47.01259581
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+all: client server
+#  Command line target.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/4=0%
+
+purge: clean
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'makefile', line 44):
+	-rm -f main
+
+# Not a target:
+protocol.h:
+#  Implicit rule search has been done.
+#  Last modified 2022-08-07 10:08:30.860439456
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+protocol.o:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-25 17:10:41.14400386
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-24 16:24:26.701180286
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+server.cpp:
+#  Implicit rule search has not been done.
+ 
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+commands.o:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-25 17:10:41.13500391
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+client.cpp:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-31 21:49:16.592333255
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+.SUFFIXES:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+socket_utils.h:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-25 16:15:31.327180086
+#  File has been updated.
+#  Successfully updated.
+
+# files hash-table stats:
+# Load=18/1024=2%, Rehash=0, Collisions=1/59=2%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 39 / storage = 393 B / avg = 10 B
+# current buf: size = 8162 B / used = 393 B / count = 39 / avg = 10 B
+
+# strcache performance: lookups = 81 / hit rate = 51%
+# hash-table stats:
+# Load=39/8192=0%, Rehash=0, Collisions=0/81=0%
+# Finished Make data base on Sun Aug  7 10:09:19 2022
+
+ 

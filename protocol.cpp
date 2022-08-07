@@ -1,4 +1,4 @@
-#include "protocol.h"
+#include"protocol.h"
 
 void init_protocol(int type){
     app_info.sequence = 0;
@@ -96,21 +96,38 @@ int send_message(uint8_t type, ifstream data, vector<uint8_t>& param, int origin
     if(data.is_open()) {
         // Verifica tamanho do arquivo
         streampos size = data.tellg();
+        long long fileSize = size;
 
         // precisa mandar tamanho do arquivo ?
         if((type == PUT_TYPE && app_info.type == CLIENT) || (type == GET_TYPE && app_info.type == SERVER)){
             // manda tamanho arquivo
-            long long fileSize = size;
             send_socket(new_message(SIZEF_TYPE, param));
             int resolve = wait_answer();
         }
         
-        
+        // Coloca cursor no inicio do arquivo
+        data.seekg (0, ios::beg);
+
         // Enquanto não chegou ao fim
-            // Manda pacote
-            // espera resposta
+        long long to_send = fileSize;
+        char *datablock;
+        while(to_send > 0){
+            // Manda 4 de uma vez
+            for(int i = 0; i < 4; i++){
+                int bytes = to_send < DATA_SIZE_BYTES ? to_send : DATA_SIZE_BYTES;
+                datablock = new char[bytes];
+                data.read (datablock, bytes);
+
+                send_socket(new_message(DATA_TYPE, charToVector(datablock, bytes)));
+                to_send -= bytes;
+            }
+
+
+        }
 
         // Tem que receber algo ?
             // Recebe e trata 
     }
+
+    return 1;
 }

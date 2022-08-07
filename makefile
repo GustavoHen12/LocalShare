@@ -38,7 +38,7 @@ client.o: client.cpp  $(H_SOURCE_CLIENT)
 	$(CC) -c $@ $^
 
 clean:
-	-rm -f *~ *.o
+	-rm -f *~ *.o *.h.gch
 	
 purge: clean
 	-rm -f main
