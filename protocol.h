@@ -37,6 +37,11 @@ using namespace std;
 #define START_MARKER 0b01111110
 #define DATA_SIZE_BYTES 63
 
+#define MSG_MIN_SIZE 12
+#define MSG_MAX_SIZE 70
+
+#define DEBUG_PROTOCOL
+
 typedef struct {
     uint8_t type;         // Tipo = 6bits
     uint8_t size;         // Tamanho da mensagem = 6bits

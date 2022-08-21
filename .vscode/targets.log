@@ -1,6 +1,4 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
-make: *** No rule to make target 'commands.o', needed by 'client'.  Stop.
-
 # GNU Make 4.3
 # Built for x86_64-redhat-linux-gnu
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
@@ -8,7 +6,7 @@ make: *** No rule to make target 'commands.o', needed by 'client'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Aug  7 10:21:11 2022
+# Make data base, printed on Sun Aug 21 15:04:45 2022
 
 # Variables
 
@@ -57,13 +55,14 @@ OLDPWD = /home/gustavo
 # automatic
 %F = $(notdir $%)
 # environment
-VSCODE_CODE_CACHE_PATH = /home/gustavo/.config/Code/CachedData/3b889b090b5ad5793f524b5d1d39fda662b96a2a
+VSCODE_CODE_CACHE_PATH = /home/gustavo/.config/Code/CachedData/6d9b74a70ca9c7733b29f0456fd8195364076dda
 # makefile (from 'makefile', line 11)
 OBJ_CLIENT = $(CPP_SOURCE_CLIENT:.cpp=.o)
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.GLBGQ1
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.VNZER1
+ 
 # default
 .LOADED := 
 # default
@@ -101,13 +100,13 @@ MAKEFILE_LIST := makefile
 # environment
 ZSH = /home/gustavo/.oh-my-zsh
 # environment
-VSCODE_PID = 4879
+VSCODE_PID = 4494
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/unix:@/tmp/.ICE-unix/1720,unix/unix:/tmp/.ICE-unix/1720
+SESSION_MANAGER = local/unix:@/tmp/.ICE-unix/1933,unix/unix:/tmp/.ICE-unix/1933
 # automatic
 *F = $(notdir $*)
 # environment
@@ -143,7 +142,7 @@ MAKEFILES :=
 # automatic
 ^F = $(notdir $^)
 # environment
-INVOCATION_ID = 25add2a462544e56bd5752a5f90fd064
+INVOCATION_ID = 828e31d7a1c94d46bb94f339b3e95dcf
 # makefile (from 'makefile', line 9)
 H_SOURCE_SERVER = commands.h protocol.h socket_utils.h
 # environment
@@ -177,7 +176,7 @@ CPP_SOURCE_CLIENT = commands.cpp protocol.cpp socket_utils.cpp client.cpp
 # makefile
 .DEFAULT_GOAL := all
 # environment
-SYSTEMD_EXEC_PID = 1744
+SYSTEMD_EXEC_PID = 1961
 # environment
 HISTCONTROL = ignoredups
 # environment
@@ -189,7 +188,7 @@ USER = gustavo
 # default
 MAKE_VERSION := 4.3
 # environment
-MANAGERPID = 1604
+MANAGERPID = 1798
 # environment
 which_declare = typeset -f
 # environment
@@ -197,7 +196,7 @@ DEBUGINFOD_URLS = https://debuginfod.fedoraproject.org/
 # environment
 NODE_TLS_REJECT_UNAUTHORIZED = 0
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 4879
+GIO_LAUNCHED_DESKTOP_FILE_PID = 4494
 # environment
 PAGER = less
 # environment
@@ -205,7 +204,7 @@ _ = /usr/bin/make
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
-JOURNAL_STREAM = 8:33179
+JOURNAL_STREAM = 8:32566
 # makefile (from 'makefile', line 8)
 CPP_SOURCE_SERVER = commands.cpp protocol.cpp socket_utils.cpp server.cpp
 # environment
@@ -219,7 +218,7 @@ QT_IM_MODULE = ibus
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK = /run/user/1000/vscode-8f6c2e77-1.69.2-main.sock
+VSCODE_IPC_HOOK = /run/user/1000/vscode-8f6c2e77-1.70.1-main.sock
 # default
 .RECIPEPREFIX := 
 # automatic
@@ -227,7 +226,7 @@ VSCODE_IPC_HOOK = /run/user/1000/vscode-8f6c2e77-1.69.2-main.sock
 # default
 SUFFIXES := 
 # makefile (from 'makefile', line 19)
-DEBUG_FLAGS = -g
+DEBUG_FLAGS = -g -DDEBUG
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink guile load
 # makefile (from 'makefile', line 15)
@@ -249,39 +248,42 @@ CC_FLAGS = -Wall -lm
 
 # Directories
 
-# . (device 41, inode 1639779): 17 files, 1 impossibilities.
+# . (device 41, inode 1639779): 26 files, 3 impossibilities.
 
-# 17 files, 1 impossibilities in 1 directories.
+# 26 files, 3 impossibilities in 1 directories.
 
 # Implicit Rules
 
 %.o: %.c %.h
 #  recipe to execute (from 'makefile', line 32):
-	$(CC) -o $@ $< $(CC_FLAGS)
+	$(CC) -o $@ $< $(CC_FLAGS) $(DEBUG_FLAGS)
 
 # 1 implicit rules, 0 (0.0%) terminal.
 # Files
 
 client: commands.o protocol.o socket_utils.o client.o
 #  Implicit rule search has not been done.
-#  Last modified 2022-08-07 10:19:28.181894867
-#  File has not been updated.
+#  Last modified 2022-08-21 15:03:45.138197809
+#  File has been updated.
+#  Successfully updated.
 #  recipe to execute (from 'makefile', line 26):
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(DEBUG_FLAGS)
 
 client.o: client.cpp commands.h protocol.h socket_utils.h
 #  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+#  Last modified 2022-08-21 15:03:41.410202743
+#  File has been updated.
+#  Successfully updated.
 #  recipe to execute (from 'makefile', line 38):
-	$(CC) -c $@ $^
+	$(CC) -c $@ $^ $(DEBUG_FLAGS)
 
 server.o: server.cpp commands.h protocol.h socket_utils.h
 #  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+#  Last modified 2022-08-21 15:03:46.464196055
+#  File has been updated.
+#  Successfully updated.
 #  recipe to execute (from 'makefile', line 35):
-	$(CC) -c $@ $^
+	$(CC) -c $@ $^ $(DEBUG_FLAGS)
 
 clean:
 #  Implicit rule search has not been done.
@@ -293,22 +295,25 @@ clean:
 
 server: commands.o protocol.o socket_utils.o server.o
 #  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+#  Last modified 2022-08-21 15:03:50.36719089
+#  File has been updated.
+#  Successfully updated.
 #  recipe to execute (from 'makefile', line 29):
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(DEBUG_FLAGS)
 
 # Not a target:
 socket_utils.o:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+#  Implicit rule search has been done.
+#  Last modified 2022-08-21 15:03:40.262204262
+#  File has been updated.
+#  Successfully updated.
 
 # Not a target:
 commands.h:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+#  Implicit rule search has been done.
+#  Last modified 2022-07-24 15:41:47.01259581
+#  File has been updated.
+#  Successfully updated.
 
 # Not a target:
 .DEFAULT:
@@ -320,7 +325,8 @@ all: client server
 #  Command line target.
 #  Implicit rule search has been done.
 #  File does not exist.
-#  File has not been updated.
+#  File has been updated.
+#  Successfully updated.
 
 purge: clean
 #  Implicit rule search has not been done.
@@ -331,61 +337,68 @@ purge: clean
 
 # Not a target:
 protocol.h:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
-# Not a target:
-protocol.o:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
-# Not a target:
-makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-07 10:20:22.655602206
+#  Last modified 2022-08-21 14:43:29.696956208
 #  File has been updated.
 #  Successfully updated.
 
 # Not a target:
+protocol.o:
+#  Implicit rule search has been done.
+#  Last modified 2022-08-21 15:03:40.229204306
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-08-21 15:03:28.734219518
+#  File has been updated.
+#  Successfully updated.
+ 
+
+# Not a target:
 server.cpp:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+#  Implicit rule search has been done.
+#  Last modified 2022-08-07 18:46:04.773347311
+#  File has been updated.
+#  Successfully updated.
 
 # Not a target:
 commands.o:
 #  Implicit rule search has been done.
-#  File does not exist.
-#  File has not been updated.
+#  Last modified 2022-08-21 15:03:39.084205821
+#  File has been updated.
+#  Successfully updated.
 
 # Not a target:
 client.cpp:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+#  Implicit rule search has been done.
+#  Last modified 2022-08-07 18:55:25.24713236
+#  File has been updated.
+#  Successfully updated.
 
 # Not a target:
 socket_utils.h:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+#  Implicit rule search has been done.
+#  Last modified 2022-08-07 10:23:48.162445872
+#  File has been updated.
+#  Successfully updated.
 
 # files hash-table stats:
-# Load=18/1024=2%, Rehash=0, Collisions=1/54=2%
+# Load=18/1024=2%, Rehash=0, Collisions=1/58=2%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 33 / storage = 309 B / avg = 9 B
-# current buf: size = 8162 B / used = 309 B / count = 33 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 39 / storage = 394 B / avg = 10 B
+# current buf: size = 8162 B / used = 394 B / count = 39 / avg = 10 B
 
-# strcache performance: lookups = 65 / hit rate = 49%
+# strcache performance: lookups = 80 / hit rate = 51%
 # hash-table stats:
-# Load=33/8192=0%, Rehash=0, Collisions=0/65=0%
-# Finished Make data base on Sun Aug  7 10:21:11 2022
+# Load=39/8192=0%, Rehash=0, Collisions=0/80=0%
+# Finished Make data base on Sun Aug 21 15:04:45 2022
 
  

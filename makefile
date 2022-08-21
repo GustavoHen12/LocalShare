@@ -16,26 +16,26 @@ CC=c++
 
 # Flags
 CC_FLAGS =-Wall -lm
-DEBUG_FLAGS = -g
+DEBUG_FLAGS = -g -DDEBUG
 
 
 # Compilacao
 all: client server
 
 client: $(OBJ_CLIENT)
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(DEBUG_FLAGS)
 
 server: $(OBJ_SERVER)
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(DEBUG_FLAGS)
 
 %.o: %.c %.h
-	$(CC) -o $@ $< $(CC_FLAGS)
+	$(CC) -o $@ $< $(CC_FLAGS) $(DEBUG_FLAGS)
 
 server.o: server.cpp $(H_SOURCE_SERVER)
-	$(CC) -c $@ $^
+	$(CC) -c $@ $^ $(DEBUG_FLAGS)
 
 client.o: client.cpp  $(H_SOURCE_CLIENT)
-	$(CC) -c $@ $^
+	$(CC) -c $@ $^ $(DEBUG_FLAGS)
 
 clean:
 	-rm -f *~ *.o *.h.gch
