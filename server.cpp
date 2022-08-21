@@ -1,45 +1,70 @@
-#include<stdlib.h>
+#include <stdlib.h>
 #include <bits/stdc++.h>
-
-// #include"socket_utils.h"
-
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <bits/stdc++.h>
 using namespace std;
 
-#include"protocol.h"
+#include "commands.h"
 
-#define PORT 8080
+string PWD = "";
 
 using namespace std;
 
+void wait_input(int *command, string &param_a, string &param_b);
+
 int main(int argc, char const* argv[]){
-    char *mode = "lo";
-    int server_socket = conect_raw_socket(mode);
+    int server_socket = conect_raw_socket("lo");
     init_protocol(SERVER, server_socket, 2, 0);
-    
-    ifstream ifNull;
-    vector<u_int8_t> vecNull;
 
+    int command;
+    string param_a, param_b;
     while(1){
-        msg_t *msg = get_message();
-        // if(msg->type != DATA_TYPE){
-        //     send_message(ACK_TYPE, ifNull, vecNull);
-        // }
-
-        for(int i = 0; i < msg->size; i++){
-            char c = (msg->data_bytes)[i];
-            cout << c;
+        // Espera comando de entrada
+        wait_input(&command, param_a, param_b);
+        cout << command << " - " << param_a << endl;
+        switch (command) {
+            case CMD_CD:
+                cd_server(param_a);
+                break;
+            
+            default:
+                break;
         }
-        cout << endl;
     }
+
+    // while(1){
+    //     wait_input();
+    //     // msg_t *msg = get_message();
+
+    //     // for(int i = 0; i < msg->size; i++){
+    //     //     char c = (msg->data_bytes)[i];
+    //     //     cout << c;
+    //     // }
+    //     // cout << endl;
+    // }
     
     // recv(new_socket, buffer, 1024);
     // printf("%s\n", buffer);
 
     // close(new_socket);
     // closing the listening socket
+
     shutdown(server_socket, SHUT_RDWR);
     return 0;
+}
+
+void wait_input(int *command, string &param_a, string &param_b) {
+    msg_t *msg = get_message();
+    if(msg == NULL){
+        *command = -1;
+        return;
+    }
+
+    if(msg->type == CD_TYPE){
+        *command = CMD_CD;
+        param_a = vectorToString(msg->data_bytes, msg->size);
+    }
+
+    // TODO: Implementar demais leituras aqui
 }

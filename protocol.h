@@ -62,10 +62,14 @@ typedef struct {
 
 void init_protocol(int type, int socket, int sequence, int target_sequence);
 
-int send_message(uint8_t type, ifstream& data, vector<uint8_t>& param);
+int send_message(uint8_t type, ifstream& data, string param_str);
 
 vector<uint8_t> charToVector(char *data, int size);
 
+string vectorToString(vector<uint8_t> &data, int size);
+
 msg_t *get_message();
+
+void print_error(msg_t *error_msg);
 
 #endif

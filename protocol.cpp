@@ -20,6 +20,10 @@ void printMessage(msg_t *msg, string prefix){
     cout << endl;
 }
 
+void print_error(msg_t *error_msg){
+    cout << "ERRO" << endl;
+}
+
 vector<uint8_t> charToVector(char *data, int size){
     vector<uint8_t> dt(size);
     for(int i = 0; i < size; i++){
@@ -27,6 +31,24 @@ vector<uint8_t> charToVector(char *data, int size){
     }
 
     return dt;
+}
+
+vector<uint8_t> stringToVector(string str){
+    vector<uint8_t> dt(str.size());
+    for(int i = 0; i < str.size(); i++){
+        dt[i] = (char) str[i];
+    }
+
+    return dt;
+}
+
+string vectorToString(vector<uint8_t> &data, int size) {
+    string str;
+    for(int i = 0; i < size; i++) {
+        str += (char) data[i];
+    }
+
+    return str;
 }
 
 int incrementSequence(int sequence){
@@ -196,7 +218,6 @@ msg_t *get_message(){
     do{
         vector<uint8_t> buf(100);
         int bytes = recv(app_info.socket, buf.data(), buf.size() - 1, 0);
-        debug_cout("Recebido");
 
         if(bytes < MSG_MIN_SIZE || bytes > MSG_MAX_SIZE){
             continue;
@@ -219,7 +240,9 @@ msg_t *get_message(){
     return NULL;
 }
 
-int send_message(uint8_t type, ifstream& data, vector<uint8_t>& param) {
+int send_message(uint8_t type, ifstream& data, string param_str) {
+    // Converte param
+    vector<uint8_t> param = stringToVector(param_str);
     // monta mensagem inicial
     msg_t *start_msg = new_message(type, param);
     if(start_msg == NULL){
@@ -229,9 +252,11 @@ int send_message(uint8_t type, ifstream& data, vector<uint8_t>& param) {
 
     // Envia mensagem inicial e verifica resposta
     send_socket(start_msg);
-    sleep(5);
-    // msg_t *resolve = get_message();
-    // printMessage(resolve);
+    
+    if(type != CD_TYPE && type != MKDIR_TYPE){
+        // TODO: adicionar tratamento
+        msg_t *resolve = get_message();
+    }
 
     if(data.is_open()) {
         // Verifica tamanho do arquivo
@@ -288,5 +313,6 @@ int send_message(uint8_t type, ifstream& data, vector<uint8_t>& param) {
             // Recebe e trata 
     }
 
+    debug_cout("Envio finalizado");
     return 1;
 }

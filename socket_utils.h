@@ -23,6 +23,6 @@
 * Função cria conexão com raw socket e retorna 
 * o numero do raw socket
 */
-int conect_raw_socket(char *device);
+int conect_raw_socket(const char *device);
 
 #endif
