@@ -2,6 +2,11 @@
 #define __COMMANDS__
 
 #include <bits/stdc++.h>
+#include <filesystem>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+namespace fs = std::filesystem;
 using namespace std;
 
 #include"protocol.h"
@@ -20,7 +25,7 @@ int getCommandCode(string command);
 void cd_client(string directory, int attempts=0);
 
 /*********** COMANDO DO SERVIDOR ***********/
-void cd_server(string directory, int attempts=0);
+void cd_server(string& directory, fs::path& current_path);
 
 #endif
 

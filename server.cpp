@@ -7,7 +7,7 @@ using namespace std;
 
 #include "commands.h"
 
-string PWD = "";
+fs::path PWD = "";
 
 using namespace std;
 
@@ -17,6 +17,8 @@ int main(int argc, char const* argv[]){
     int server_socket = conect_raw_socket("lo");
     init_protocol(SERVER, server_socket, 2, 0);
 
+    PWD = fs::current_path();
+    
     int command;
     string param_a, param_b;
     while(1){
@@ -25,7 +27,8 @@ int main(int argc, char const* argv[]){
         cout << command << " - " << param_a << endl;
         switch (command) {
             case CMD_CD:
-                cd_server(param_a);
+                cd_server(param_a, PWD);
+                cout << "PWD: " << PWD << endl;
                 break;
             
             default:

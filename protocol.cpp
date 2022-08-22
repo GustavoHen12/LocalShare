@@ -233,7 +233,7 @@ msg_t *get_message(){
             return msg;
         } else {
             int seq = msg->sequence;
-            debug_cout("Invalida. Esperado: " << app_info.target_sequence << " / " << seq << endl);
+            // debug_cout("Invalida. Esperado: " << app_info.target_sequence << " / " << seq << endl);
         }
     } while(1);
     
@@ -253,10 +253,10 @@ int send_message(uint8_t type, ifstream& data, string param_str) {
     // Envia mensagem inicial e verifica resposta
     send_socket(start_msg);
     
-    if(type != CD_TYPE && type != MKDIR_TYPE){
-        // TODO: adicionar tratamento
-        msg_t *resolve = get_message();
-    }
+    // if(type != CD_TYPE && type != MKDIR_TYPE){
+    //     // TODO: adicionar tratamento
+    //     // msg_t *resolve = get_message();
+    // }
 
     if(data.is_open()) {
         // Verifica tamanho do arquivo
