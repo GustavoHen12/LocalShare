@@ -14,6 +14,15 @@ using namespace std;
 #define SERVER 0
 #define CLIENT 1
 
+/****** CODIGOS INTERNOS ******/
+#define MESSAGE_SENT 1
+#define ERROR  -1
+
+#define RESEND  -2
+#define END_COMMAND  2
+
+#define WINDOW_SIZE 4
+
 /****** MESSAGE TYPES ******/
 #define OK_TYPE     0b000001
 #define NACK_TYPE   0b000010
@@ -29,7 +38,7 @@ using namespace std;
 #define ERROR_TYPE   0b010001
 #define SIZEF_TYPE   0b011000
 #define END_TYPE     0b101110
-#define SCRN_TYPE    0b111111
+#define PRINT_TYPE    0b111111
 
 /****** ERROR TYPE******/
 
@@ -62,7 +71,7 @@ typedef struct {
 
 void init_protocol(int type, int socket, int sequence, int target_sequence);
 
-int send_message(uint8_t type, ifstream& data, string param_str);
+int send_message(uint8_t type, fstream& data, string param_str="");
 
 vector<uint8_t> charToVector(char *data, int size);
 

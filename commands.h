@@ -24,8 +24,12 @@ int getCommandCode(string command);
 /*********** COMANDO DO CLIENTE ***********/
 void cd_client(string directory, int attempts=0);
 
+void ls_client(string parameter);
+
 /*********** COMANDO DO SERVIDOR ***********/
 void cd_server(string& directory, fs::path& current_path);
+
+void ls_server(string parameter, fs::path& current_path);
 
 #endif
 

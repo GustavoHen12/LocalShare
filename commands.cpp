@@ -1,6 +1,6 @@
 #include "commands.h"
 
-ifstream null_file;
+fstream null_file;
 
 int getCommandCode(string command) {
     if(command == "cd"){
@@ -33,6 +33,9 @@ int execute_command(const char* cmd, string &output) {
     return exitcode;
 }
 
+/************************/
+/*      CD              */
+/************************/
 
 void cd_client(string directory, int attempts) {
     if(attempts > MAX_ATEMPTS) {
@@ -40,18 +43,22 @@ void cd_client(string directory, int attempts) {
     }
     
     // Envia menssagem
-    send_message(CD_TYPE, null_file, directory);
+    int result = send_message(CD_TYPE, null_file, directory);
 
-    // Verifica se a resposta é positiva
-    msg_t *response = get_message();
-    if(response != NULL && response->type == OK_TYPE){
+    if(result == MESSAGE_SENT){
         cout << "Sucesso" << endl;
-        return;
-    } else if(response != NULL && response->type == NACK_TYPE){
-        cd_client(directory, attempts + 1);
-    } else if (response != NULL && response->type == ERROR_TYPE){
-        print_error(response);
     }
+
+    // // TODO: Isso deve ser tratado no send_message, não aqui
+    // // Verifica se a resposta é positiva
+    // msg_t *response = get_message();
+    // if(response != NULL && response->type == OK_TYPE){
+    //     return;
+    // } else if(response != NULL && response->type == NACK_TYPE){
+    //     cd_client(directory, attempts + 1);
+    // } else if (response != NULL && response->type == ERROR_TYPE){
+    //     print_error(response);
+    // }
 }
 
 void cd_server(string& directory, fs::path& current_path) {
@@ -70,9 +77,22 @@ void cd_server(string& directory, fs::path& current_path) {
 
     int result_code = execute_command(cmd.c_str(), result);
     if(result_code == 0){
-        send_message(OK_TYPE, null_file, "");
+        send_message(OK_TYPE, null_file);
+    } else {
+        // TODO: Adicionar opções de erro
+        send_message(ERROR_TYPE, null_file, "A");
     }
+}
 
-    // TODO: Adicionar opções de erro
-    send_message(ERROR_TYPE, null_file, "A");
+/************************/
+/*      LS              */
+/************************/
+
+void ls_client(string parameter) {    
+    // Envia menssagem
+    send_message(LS_TYPE, null_file, parameter);
+}
+
+void ls_server(string parameter, fs::path& current_path) {
+
 }

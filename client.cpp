@@ -34,7 +34,9 @@ int main(int argc, char const* argv[]){
             case CMD_CD:
                 cd_client(param_a);
                 break;
-            
+            case CMD_LS:
+                ls_client(param_a);
+                break;
             default:
                 break;
         }

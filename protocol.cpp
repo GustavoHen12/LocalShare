@@ -59,6 +59,18 @@ int incrementSequence(int sequence){
     return sequence+1;
 }
 
+int processResponse(msg_t *response){
+    if((response->type == ACK_TYPE) || (response->type == OK_TYPE)){
+        return MESSAGE_SENT;
+    } else if (response->type == NACK_TYPE) {
+        return RESEND;
+    } else if (response->type == ERROR_TYPE) {
+        return ERROR;
+    }
+
+    return 0;
+}
+
 /*
 * Função recebe como parametro uma mensagem e envia ela para o socket
 */
@@ -240,79 +252,151 @@ msg_t *get_message(){
     return NULL;
 }
 
-int send_message(uint8_t type, ifstream& data, string param_str) {
-    // Converte param
+int send_file(uint8_t type, fstream& data){
+    int status;
+
+    // Verifica tamanho do arquivo
+    streampos size = data.tellg();
+    long long fileSize = size;
+
+    // Manda tamanho do arquivo se necessário
+    if((type == PUT_TYPE && app_info.type == CLIENT) || (type == GET_TYPE && app_info.type == SERVER)){
+        vector<uint8_t> size_f;
+        size_f.push_back(fileSize);
+        msg_t *size_msg = new_message(SIZEF_TYPE, size_f);
+
+        do{
+            send_socket(size_msg);
+            msg_t *resolve = get_message();
+            int status = processResponse(resolve);
+        } while(status == RESEND);
+    }
+        
+    // Coloca cursor no inicio do arquivo
+    data.seekg (0, ios::beg);
+    
+    // Envia dados
+    long long to_send = fileSize;
+    cout << "File size: " << size << "\n";
+    char *datablock;
+    // TODO: FAZER VOLTAR QUANDO RECEBER UM NACK
+    while(to_send > 0){
+        // Manda 4 pacotes de uma vez
+        for(int i = 0; i < 4; i++){
+            // Pega tamanho em bytes do bloco a ser enviado
+            int bytes = to_send < DATA_SIZE_BYTES ? to_send : DATA_SIZE_BYTES;
+            datablock = new char[bytes];
+            
+            // Le o bloco
+            data.read(datablock, bytes);
+
+            // Converte para vetor e envia
+            vector<uint8_t> vec_data = charToVector(datablock, bytes);
+            msg_t *data_msg = new_message(DATA_TYPE, vec_data);
+            send_socket(data_msg);
+            
+            // Decrementa e verificar se já acabou
+            to_send -= bytes;
+            if(to_send <= 0)
+                break;
+        }
+
+        msg_t *answer = get_message();
+        if(answer->type != OK_TYPE){
+            break;
+        }
+    }
+
+    return status;
+}
+
+int receive_file(uint8_t type, fstream& data) {
+    fstream null_file;
+
+    int status;
+    // Enquanto não houver erro
+    do {
+        for(int i = 0; i < WINDOW_SIZE; i++){
+            msg_t *msg = get_message();
+            // Verfica timmeout (perdeu alguma mensagem da janela)
+            if(msg->type == NACK_TYPE) { 
+                cout << "Ocorreu erro timeout" << "\n";
+                status = RESEND;
+                break;
+            } else if (msg->type == PRINT_TYPE) {
+                for(int i = 0; i < msg->size; i++){
+                    cout << msg->data_bytes[i];
+                }
+                status = MESSAGE_SENT;
+            } else if(msg->type == END_TYPE){
+                status = END_COMMAND;
+                break;
+            }
+        }
+    
+        if(status == RESEND){
+            send_message(NACK_TYPE, null_file);
+        } else {
+            send_message(ACK_TYPE, null_file);
+        }
+    } while(status != END_COMMAND);
+
+    return status;
+}
+
+bool message_send_data(uint8_t type){
+    if(app_info.type == SERVER){
+        return type == LS_TYPE || type == GET_TYPE;
+    }
+    return type == PUT_TYPE;
+}
+
+bool message_receive_file(uint8_t type){
+    if(app_info.type == SERVER){
+        return type == PUT_TYPE;
+    }
+    return type == GET_TYPE || type == LS_TYPE;
+}
+
+bool ignoreResponse(){
+    return false;
+}
+
+int send_message(uint8_t type, fstream& data, string param_str) {
+    debug_cout("sent_message: Iniciando...");
+
+    // Estado do envio dos dados
+    int status;
+
+    // Converte param para vetor de uint8_t 
     vector<uint8_t> param = stringToVector(param_str);
-    // monta mensagem inicial
+
+    // Monta mensagem inicial
     msg_t *start_msg = new_message(type, param);
     if(start_msg == NULL){
         cerr << "Não foi possível criar a menssagem !\n";
-        return 0;
+        return ERROR;
     }
 
-    // Envia mensagem inicial e verifica resposta
+    // Envia mensagem inicial
     send_socket(start_msg);
-    
-    // if(type != CD_TYPE && type != MKDIR_TYPE){
-    //     // TODO: adicionar tratamento
-    //     // msg_t *resolve = get_message();
-    // }
 
-    if(data.is_open()) {
-        // Verifica tamanho do arquivo
-        streampos size = data.tellg();
-        long long fileSize = size;
-
-        // Manda tamanho do arquivo se necessário
-        if((type == PUT_TYPE && app_info.type == CLIENT) || (type == GET_TYPE && app_info.type == SERVER)){
-            vector<uint8_t> size_f;
-            size_f.push_back(fileSize);
-            msg_t *size_msg = new_message(SIZEF_TYPE, size_f);
-            send_socket(size_msg);
-            // msg_t *resolve = get_message();
-            // printMessage(resolve);
-        }
-        
-        sleep(5);
-        
-        // Coloca cursor no inicio do arquivo
-        data.seekg (0, ios::beg);
-        
-        // Envia dados
-        long long to_send = fileSize;
-        cout << "File size: " << size << "\n";
-        char *datablock;
-        while(to_send > 0){
-            // Manda 4 pacotes de uma vez
-            for(int i = 0; i < 4; i++){
-                // Pega tamanho em bytes do bloco a ser enviado
-                int bytes = to_send < DATA_SIZE_BYTES ? to_send : DATA_SIZE_BYTES;
-                datablock = new char[bytes];
-                
-                // Le o bloco
-                data.read (datablock, bytes);
-
-                // Converte para vetor e envia
-                vector<uint8_t> vec_data = charToVector(datablock, bytes);
-                msg_t *data_msg = new_message(DATA_TYPE, vec_data);
-                send_socket(data_msg);
-                
-                // Decrementa e verificar se já acabou
-                to_send -= bytes;
-                if(to_send <= 0)
-                    break;
-            }
-
-            // msg_t *answer = get_message();
-            // if(answer->type != OK_TYPE){
-            //     break;
-            // }
-        }
-
-        // Tem que receber algo ?
-            // Recebe e trata 
+    // Verifica resposta
+    if(!ignoreResponse()){
+        msg_t *resolve = get_message();
+        status = processResponse(resolve);
     }
 
-    debug_cout("Envio finalizado");
-    return 1;
+    // Envia dados
+    if(message_send_data(type) && data.is_open() && status != ERROR) {
+        status = send_file(type, data);
+    }
+    
+    if(message_receive_file(type) && status != ERROR) {
+        //open_or_create_file();
+        status = receive_file(type, data);
+    }
+
+    debug_cout("sent_message: Finalizado");
+    return status;
 }

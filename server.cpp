@@ -30,6 +30,10 @@ int main(int argc, char const* argv[]){
                 cd_server(param_a, PWD);
                 cout << "PWD: " << PWD << endl;
                 break;
+            case CMD_LS:
+                ls_server(param_a, PWD);
+                cout << "PWD: " << PWD << endl;
+                break;
             
             default:
                 break;
