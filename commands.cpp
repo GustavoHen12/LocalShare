@@ -29,7 +29,6 @@ int execute_command(const char* cmd, string &output) {
     while (fread(&c, sizeof c, 1, fpipe)) output += c;
 
     int exitcode = pclose(fpipe);
-    cout << "Exit code: " << exitcode;
     return exitcode;
 }
 
@@ -48,17 +47,6 @@ void cd_client(string directory, int attempts) {
     if(result == MESSAGE_SENT){
         cout << "Sucesso" << endl;
     }
-
-    // // TODO: Isso deve ser tratado no send_message, não aqui
-    // // Verifica se a resposta é positiva
-    // msg_t *response = get_message();
-    // if(response != NULL && response->type == OK_TYPE){
-    //     return;
-    // } else if(response != NULL && response->type == NACK_TYPE){
-    //     cd_client(directory, attempts + 1);
-    // } else if (response != NULL && response->type == ERROR_TYPE){
-    //     print_error(response);
-    // }
 }
 
 void cd_server(string& directory, fs::path& current_path) {
@@ -66,18 +54,22 @@ void cd_server(string& directory, fs::path& current_path) {
     fs::path n_path = current_path;
     n_path.append(directory);
 
+    // TODO: Adicionar tratamento para caminho absoluto
     string n_path_str = n_path.generic_u8string();
     char n_path_char[n_path_str.length() + 1];
     strcpy(n_path_char, n_path_str.c_str());
+
+    // TODO: Executar outro comando pra saber se o usuario tem permissao
     
     cout << "CD: verificando " << n_path_char << "\n";
     // Verifica se o diretorio existe
-    string cmd = "ls " + n_path_str;
+    string cmd = "cd " + n_path_str;
     string result;
 
     int result_code = execute_command(cmd.c_str(), result);
     if(result_code == 0){
         send_message(OK_TYPE, null_file);
+        current_path.append(directory);
     } else {
         // TODO: Adicionar opções de erro
         send_message(ERROR_TYPE, null_file, "A");
@@ -94,5 +86,17 @@ void ls_client(string parameter) {
 }
 
 void ls_server(string parameter, fs::path& current_path) {
+    
+    string cmd = "ls " + current_path.generic_u8string() + " > server.temp";
+    string result;
 
+    int result_code = execute_command(cmd.c_str(), result);
+
+    send_message(OK_TYPE, null_file);
+
+    // Abre o arquivo
+    fstream ls_result;
+    ls_result.open("server.temp",  ios_base::in | ios_base::out | ios::binary | ios::ate);
+    cout << "Arquivo criado: " << ls_result.is_open() << "\n";
+    send_message(LS_TYPE, ls_result);
 }

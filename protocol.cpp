@@ -87,7 +87,8 @@ void send_socket(msg_t *msg){
     msg_bytes[1] = (msg->size & 0b00111111) << 2;
 
     // Sequencia 4bis = 2bits anterior e 2 depois
-    msg_bytes[1] = msg_bytes[1] | (msg->sequence & 0b00001100);
+    uint8_t temp_seq = (msg->sequence & 0b00001100);
+    msg_bytes[1] = msg_bytes[1] | (temp_seq >> 2);
     msg_bytes[2] = (msg->sequence & 0b00000011) << 6;
 
     // Typo 6bits = Todos na anterior
@@ -212,7 +213,7 @@ msg_t *new_message(uint8_t type, vector<uint8_t> &data) {
     }
 
     debug_cout("Mensagem criada: ");
-    printMessage(msg, "\t");
+    // printMessage(msg, "\t");
     return msg;
 }
 
@@ -240,13 +241,18 @@ msg_t *get_message(){
         // Verifica se a mensagem que foi recebida é a esperada
         if(msg != NULL && (msg->sequence == app_info.target_sequence)){
             app_info.target_sequence = incrementSequence(app_info.target_sequence);
-            debug_cout("Valida");
-            printMessage(msg, "\t");
+            // debug_cout("Valida");
+            // printMessage(msg, "\t");
             return msg;
         } else {
             int seq = msg->sequence;
+            // if(app_info.type == CLIENT){
+            //     cout << "Invalida. Esperado: " << app_info.target_sequence << " / " << seq << endl;
+            //     printMessage(msg, "\t Invalida");
+            // }
             // debug_cout("Invalida. Esperado: " << app_info.target_sequence << " / " << seq << endl);
         }
+
     } while(1);
     
     return NULL;
@@ -273,39 +279,53 @@ int send_file(uint8_t type, fstream& data){
     }
         
     // Coloca cursor no inicio do arquivo
-    data.seekg (0, ios::beg);
+    data.seekg(0, ios::beg);
     
     // Envia dados
     long long to_send = fileSize;
     cout << "File size: " << size << "\n";
-    char *datablock;
     // TODO: FAZER VOLTAR QUANDO RECEBER UM NACK
     while(to_send > 0){
         // Manda 4 pacotes de uma vez
+        int sended = 0;
         for(int i = 0; i < 4; i++){
+            cout << "Enviadas " << app_info.sequence << endl;
             // Pega tamanho em bytes do bloco a ser enviado
             int bytes = to_send < DATA_SIZE_BYTES ? to_send : DATA_SIZE_BYTES;
-            datablock = new char[bytes];
+            char *datablock = new char[bytes];
             
             // Le o bloco
             data.read(datablock, bytes);
 
             // Converte para vetor e envia
             vector<uint8_t> vec_data = charToVector(datablock, bytes);
-            msg_t *data_msg = new_message(DATA_TYPE, vec_data);
+            msg_t *data_msg = new_message(PRINT_TYPE, vec_data);
+            // printMessage(data_msg, "\t");
             send_socket(data_msg);
             
             // Decrementa e verificar se já acabou
             to_send -= bytes;
-            if(to_send <= 0)
+            sended++;
+
+            if(to_send <= 0){
                 break;
+            }
         }
 
-        msg_t *answer = get_message();
-        if(answer->type != OK_TYPE){
-            break;
+        if(sended == 4){
+            msg_t *answer = get_message();
+            if((answer->type != OK_TYPE) && (answer->type != ACK_TYPE)){
+                cout << "Erro: " << to_send << endl;
+                printMessage(answer, "\t answer: ");
+                to_send = -1;
+                break;
+            }
         }
     }
+
+    vector<uint8_t> nada;
+    msg_t *end_msg = new_message(END_TYPE, nada);
+    send_socket(end_msg);
 
     return status;
 }
@@ -318,6 +338,7 @@ int receive_file(uint8_t type, fstream& data) {
     do {
         for(int i = 0; i < WINDOW_SIZE; i++){
             msg_t *msg = get_message();
+
             // Verfica timmeout (perdeu alguma mensagem da janela)
             if(msg->type == NACK_TYPE) { 
                 cout << "Ocorreu erro timeout" << "\n";
@@ -358,8 +379,12 @@ bool message_receive_file(uint8_t type){
     return type == GET_TYPE || type == LS_TYPE;
 }
 
-bool ignoreResponse(){
-    return false;
+bool send_initial_message(uint8_t type) {
+    return !(app_info.type == SERVER && type == LS_TYPE);
+}
+
+bool ignoreResponse(uint8_t type){
+    return type == OK_TYPE || type == NACK_TYPE || type == ACK_TYPE;
 }
 
 int send_message(uint8_t type, fstream& data, string param_str) {
@@ -378,21 +403,26 @@ int send_message(uint8_t type, fstream& data, string param_str) {
         return ERROR;
     }
 
-    // Envia mensagem inicial
-    send_socket(start_msg);
+    if(send_initial_message(type)){
+        // Envia mensagem inicial
+        send_socket(start_msg);
 
-    // Verifica resposta
-    if(!ignoreResponse()){
-        msg_t *resolve = get_message();
-        status = processResponse(resolve);
+        // Verifica resposta
+        if(!ignoreResponse(type)){
+            msg_t *resolve = get_message();
+            status = processResponse(resolve);
+        }
     }
 
     // Envia dados
     if(message_send_data(type) && data.is_open() && status != ERROR) {
+        cout << "Enviando arquivo" << endl;
         status = send_file(type, data);
+        cout << "Arquivo enviado" << endl;
     }
     
     if(message_receive_file(type) && status != ERROR) {
+        cout << "Esperando arquivo" << endl;
         //open_or_create_file();
         status = receive_file(type, data);
     }

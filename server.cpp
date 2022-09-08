@@ -15,7 +15,7 @@ void wait_input(int *command, string &param_a, string &param_b);
 
 int main(int argc, char const* argv[]){
     int server_socket = conect_raw_socket("lo");
-    init_protocol(SERVER, server_socket, 2, 0);
+    init_protocol(SERVER, server_socket, 7, 0);
 
     PWD = fs::current_path();
     
@@ -32,7 +32,7 @@ int main(int argc, char const* argv[]){
                 break;
             case CMD_LS:
                 ls_server(param_a, PWD);
-                cout << "PWD: " << PWD << endl;
+                cout << "Finalizado: " << PWD << endl;
                 break;
             
             default:
@@ -71,6 +71,11 @@ void wait_input(int *command, string &param_a, string &param_b) {
     if(msg->type == CD_TYPE){
         *command = CMD_CD;
         param_a = vectorToString(msg->data_bytes, msg->size);
+    } else if(msg->type == LS_TYPE) {
+        *command = CMD_LS;
+        param_a = vectorToString(msg->data_bytes, msg->size);
+    } else {
+        *command = -1;
     }
 
     // TODO: Implementar demais leituras aqui

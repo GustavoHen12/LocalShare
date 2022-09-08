@@ -11,7 +11,7 @@ void read_input_user(int *command, string &param_a, string &param_b);
 
 int main(int argc, char const* argv[]){
     int client_socket = conect_raw_socket("lo");
-    init_protocol(CLIENT, client_socket, 0, 2);
+    init_protocol(CLIENT, client_socket, 0, 7);
 
     cout << "************ FTP - Redes 1 ************\n";
     cout << "Bem vindo novamente ao FTP !!!\n";

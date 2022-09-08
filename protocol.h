@@ -49,7 +49,7 @@ using namespace std;
 #define MSG_MIN_SIZE 12
 #define MSG_MAX_SIZE 70
 
-#define DEBUG_PROTOCOL
+// #define DEBUG_PROTOCOL
 
 typedef struct {
     uint8_t type;         // Tipo = 6bits
