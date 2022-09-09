@@ -51,12 +51,46 @@ string vectorToString(vector<uint8_t> &data, int size) {
     return str;
 }
 
-int incrementSequence(int sequence){
+int incrementSequence(int sequence, bool targetSequence=false){
+    int min_sequence = 0;
     int max_sequence = 15; // 2^4 -1
-    if(sequence >= max_sequence){
-        return 0;
+
+#ifdef LO_MODE
+    if(app_info.type == CLIENT) {
+        max_sequence = targetSequence ? 15 : 7;
+        min_sequence = targetSequence ? 8 : 0;
+    } else {
+        max_sequence = targetSequence ? 7 : 15;
+        min_sequence = targetSequence ? 0 : 8;
     }
-    return sequence+1;
+#endif
+
+    if(sequence >= max_sequence){
+        return min_sequence;
+    }
+
+    return sequence + 1;
+}
+
+int decrementSequence(int sequence, bool targetSequence=false){
+    int min_sequence = 0;
+    int max_sequence = 15; // 2^4 -1
+
+#ifdef LO_MODE
+    if(app_info.type == CLIENT) {
+        max_sequence = targetSequence ? 15 : 7;
+        min_sequence = targetSequence ? 8 : 0;
+    } else {
+        max_sequence = targetSequence ? 7 : 15;
+        min_sequence = targetSequence ? 0 : 8;
+    }
+#endif
+
+    if(sequence <= min_sequence){
+        return max_sequence;
+    }
+
+    return sequence - 1;
 }
 
 int processResponse(msg_t *response){
@@ -155,8 +189,8 @@ msg_t *bytesToMessage(vector<uint8_t> buffer, int buffer_size){
             return NULL;
         }
 
-        data.push_back(buffer[i + 3]);
-        parity^=buffer[i + 3];
+        data.push_back((uint8_t) buffer[i + 3]);
+        parity^= (uint8_t) buffer[i + 3];
     }
     msg->data_bytes = data;
 
@@ -177,7 +211,7 @@ msg_t *bytesToMessage(vector<uint8_t> buffer, int buffer_size){
 
     // TODO: Verifica paridade
     if(msg->parity != parity){
-        debug_cout("Erro paridades não são iguais");
+        cout << "Erro paridades não são iguais" << endl;
     }
     return msg;
 }
@@ -223,6 +257,17 @@ void init_protocol(int type, int socket, int sequence, int target_sequence){
     app_info.type = type;
     app_info.target_sequence = target_sequence;
     app_info.socket = socket;
+
+#ifdef LO_MODE
+    if(app_info.type == CLIENT) {
+        app_info.sequence = 0;
+        app_info.target_sequence = 8;
+    } else {
+        app_info.sequence = 8;
+        app_info.target_sequence = 0;
+    }
+#endif
+
 }
 
 msg_t *get_message(){
@@ -237,10 +282,10 @@ msg_t *get_message(){
         }
         
         msg_t *msg = bytesToMessage(buf, bytes);
-        
+
         // Verifica se a mensagem que foi recebida é a esperada
         if(msg != NULL && (msg->sequence == app_info.target_sequence)){
-            app_info.target_sequence = incrementSequence(app_info.target_sequence);
+            app_info.target_sequence = incrementSequence(app_info.target_sequence, true);
             // debug_cout("Valida");
             // printMessage(msg, "\t");
             return msg;
@@ -267,14 +312,22 @@ int send_file(uint8_t type, fstream& data){
 
     // Manda tamanho do arquivo se necessário
     if((type == PUT_TYPE && app_info.type == CLIENT) || (type == GET_TYPE && app_info.type == SERVER)){
+        cout << "Enviando tamanho do arquivo: " << fileSize << endl;
         vector<uint8_t> size_f;
-        size_f.push_back(fileSize);
+        for(int i = 0; i < sizeof(long long); i++) {
+            uint8_t byte = fileSize >> (8*i);
+            size_f.push_back(byte);
+        }
+
         msg_t *size_msg = new_message(SIZEF_TYPE, size_f);
 
         do{
             send_socket(size_msg);
             msg_t *resolve = get_message();
-            int status = processResponse(resolve);
+            status = processResponse(resolve);
+            if(status == RESEND) {
+                app_info.sequence = decrementSequence(app_info.sequence);
+            }
         } while(status == RESEND);
     }
         
@@ -289,7 +342,7 @@ int send_file(uint8_t type, fstream& data){
         // Manda 4 pacotes de uma vez
         int sended = 0;
         for(int i = 0; i < 4; i++){
-            cout << "Enviadas " << app_info.sequence << endl;
+            // cout << "Enviadas " << app_info.sequence << endl;
             // Pega tamanho em bytes do bloco a ser enviado
             int bytes = to_send < DATA_SIZE_BYTES ? to_send : DATA_SIZE_BYTES;
             char *datablock = new char[bytes];
@@ -297,10 +350,12 @@ int send_file(uint8_t type, fstream& data){
             // Le o bloco
             data.read(datablock, bytes);
 
-            // Converte para vetor e envia
+            // Converte para vetor e escolhe o tipo correto
             vector<uint8_t> vec_data = charToVector(datablock, bytes);
-            msg_t *data_msg = new_message(PRINT_TYPE, vec_data);
-            // printMessage(data_msg, "\t");
+            uint8_t data_type = type == LS_TYPE ? PRINT_TYPE : DATA_TYPE;
+
+            // Cria mensagem e envia
+            msg_t *data_msg = new_message(data_type, vec_data);
             send_socket(data_msg);
             
             // Decrementa e verificar se já acabou
@@ -314,8 +369,9 @@ int send_file(uint8_t type, fstream& data){
 
         if(sended == 4){
             msg_t *answer = get_message();
-            if((answer->type != OK_TYPE) && (answer->type != ACK_TYPE)){
-                cout << "Erro: " << to_send << endl;
+            // if((answer->type != OK_TYPE) && (answer->type != ACK_TYPE)){
+            if(answer->type == ERROR_TYPE){
+                cout << "Erro: " << bitset<8>(answer->type) << endl;
                 printMessage(answer, "\t answer: ");
                 to_send = -1;
                 break;
@@ -332,6 +388,23 @@ int send_file(uint8_t type, fstream& data){
 
 int receive_file(uint8_t type, fstream& data) {
     fstream null_file;
+    
+    // Recebe tamanho do arquivo
+    if((type == PUT_TYPE && app_info.type == SERVER) || (type == GET_TYPE && app_info.type == CLIENT)) {
+        cout << "Recendo tamanho do arquivo" << endl;
+        msg_t *size_msg = get_message();
+        if(size_msg->type == SIZEF_TYPE) {
+            vector<uint8_t> size_v = size_msg->data_bytes;
+            long long size = 0;
+            for(int i = 0; i < sizeof(long long); i++){
+                uint8_t byte = size_v[i];
+                size = size | (byte << 8*i);
+            }
+            cout << "Estou recebendo um arquivo de " << size << " bytes " << endl;
+        }
+
+        send_message(OK_TYPE, null_file);
+    }
 
     int status;
     // Enquanto não houver erro
@@ -344,9 +417,14 @@ int receive_file(uint8_t type, fstream& data) {
                 cout << "Ocorreu erro timeout" << "\n";
                 status = RESEND;
                 break;
-            } else if (msg->type == PRINT_TYPE) {
+            } else if (msg->type == PRINT_TYPE) {                
                 for(int i = 0; i < msg->size; i++){
                     cout << msg->data_bytes[i];
+                }
+                status = MESSAGE_SENT;
+            } else if (msg->type == DATA_TYPE) {
+                for(int i = 0; i < msg->size; i++){
+                    data << msg->data_bytes[i];
                 }
                 status = MESSAGE_SENT;
             } else if(msg->type == END_TYPE){
@@ -380,7 +458,7 @@ bool message_receive_file(uint8_t type){
 }
 
 bool send_initial_message(uint8_t type) {
-    return !(app_info.type == SERVER && type == LS_TYPE);
+    return (!(app_info.type == SERVER && type == LS_TYPE));
 }
 
 bool ignoreResponse(uint8_t type){
@@ -423,7 +501,6 @@ int send_message(uint8_t type, fstream& data, string param_str) {
     
     if(message_receive_file(type) && status != ERROR) {
         cout << "Esperando arquivo" << endl;
-        //open_or_create_file();
         status = receive_file(type, data);
     }
 

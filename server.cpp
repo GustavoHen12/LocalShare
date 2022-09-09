@@ -34,29 +34,16 @@ int main(int argc, char const* argv[]){
                 ls_server(param_a, PWD);
                 cout << "Finalizado: " << PWD << endl;
                 break;
+            case CMD_PUT:
+                put_server(param_a, PWD);
+                cout << "Put finalizado: " << PWD << endl;
+                break;
             
             default:
                 break;
         }
     }
-
-    // while(1){
-    //     wait_input();
-    //     // msg_t *msg = get_message();
-
-    //     // for(int i = 0; i < msg->size; i++){
-    //     //     char c = (msg->data_bytes)[i];
-    //     //     cout << c;
-    //     // }
-    //     // cout << endl;
-    // }
     
-    // recv(new_socket, buffer, 1024);
-    // printf("%s\n", buffer);
-
-    // close(new_socket);
-    // closing the listening socket
-
     shutdown(server_socket, SHUT_RDWR);
     return 0;
 }
@@ -73,6 +60,9 @@ void wait_input(int *command, string &param_a, string &param_b) {
         param_a = vectorToString(msg->data_bytes, msg->size);
     } else if(msg->type == LS_TYPE) {
         *command = CMD_LS;
+        param_a = vectorToString(msg->data_bytes, msg->size);
+    } else if(msg->type == PUT_TYPE) {
+        *command = CMD_PUT;
         param_a = vectorToString(msg->data_bytes, msg->size);
     } else {
         *command = -1;

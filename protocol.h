@@ -51,6 +51,8 @@ using namespace std;
 
 // #define DEBUG_PROTOCOL
 
+#define LO_MODE
+
 typedef struct {
     uint8_t type;         // Tipo = 6bits
     uint8_t size;         // Tamanho da mensagem = 6bits
@@ -72,6 +74,8 @@ typedef struct {
 void init_protocol(int type, int socket, int sequence, int target_sequence);
 
 int send_message(uint8_t type, fstream& data, string param_str="");
+
+int receive_file(uint8_t type, fstream& data);
 
 vector<uint8_t> charToVector(char *data, int size);
 

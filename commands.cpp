@@ -97,6 +97,44 @@ void ls_server(string parameter, fs::path& current_path) {
     // Abre o arquivo
     fstream ls_result;
     ls_result.open("server.temp",  ios_base::in | ios_base::out | ios::binary | ios::ate);
+    
     cout << "Arquivo criado: " << ls_result.is_open() << "\n";
     send_message(LS_TYPE, ls_result);
+}
+
+/************************/
+/*      PUT             */
+/************************/
+
+void put_client(string parameter, fs::path& current_path) {
+    // TODO: Adicionar verificação se arquivo existe
+
+    // Abre arquivo
+    string path_to_file = current_path.generic_u8string() + "/" + parameter;
+    fstream put_file;
+    put_file.open(path_to_file,  ios_base::in | ios_base::out | ios::binary | ios::ate);
+
+    // Envia comando com nome do arquivo
+    send_message(PUT_TYPE, put_file, parameter);
+}
+
+void put_server(string parameter, fs::path& current_path) {
+    string file_path = current_path.generic_u8string() + "/" + parameter;
+
+    // Cria arquivo com mesmo nome
+    string cmd = "touch " + file_path;
+    string result;
+    int result_code = execute_command(cmd.c_str(), result);
+
+    // TODO: Adicionar verificação 
+    fstream put_file;
+    put_file.open(file_path,  ios_base::in | ios_base::out | ios::binary | ios::ate);   
+
+    send_message(OK_TYPE, null_file);
+
+    // Recebe arquivo
+    cout << "Recebendo arquivo" << endl;
+    receive_file(PUT_TYPE, put_file);
+    cout << "Arquivo recebido" << endl;
+
 }
