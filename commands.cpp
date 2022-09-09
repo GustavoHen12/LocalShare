@@ -122,7 +122,7 @@ void put_server(string parameter, fs::path& current_path) {
     string file_path = current_path.generic_u8string() + "/" + parameter;
 
     // Cria arquivo com mesmo nome
-    string cmd = "touch " + file_path;
+    string cmd = "rm " + file_path + " 2> /dev/null && touch " + file_path;
     string result;
     int result_code = execute_command(cmd.c_str(), result);
 

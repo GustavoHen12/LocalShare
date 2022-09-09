@@ -274,7 +274,8 @@ msg_t *get_message(){
     // TODO: Implementar timeout
     debug_cout("Esperando mensagem");
     do{
-        vector<uint8_t> buf(100);
+
+        vector<uint8_t> buf(300);
         int bytes = recv(app_info.socket, buf.data(), buf.size() - 1, 0);
 
         if(bytes < MSG_MIN_SIZE || bytes > MSG_MAX_SIZE){
@@ -289,13 +290,6 @@ msg_t *get_message(){
             // debug_cout("Valida");
             // printMessage(msg, "\t");
             return msg;
-        } else {
-            int seq = msg->sequence;
-            // if(app_info.type == CLIENT){
-            //     cout << "Invalida. Esperado: " << app_info.target_sequence << " / " << seq << endl;
-            //     printMessage(msg, "\t Invalida");
-            // }
-            // debug_cout("Invalida. Esperado: " << app_info.target_sequence << " / " << seq << endl);
         }
 
     } while(1);
