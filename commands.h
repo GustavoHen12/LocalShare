@@ -28,12 +28,16 @@ void ls_client(string parameter);
 
 void put_client(string parameter, fs::path& current_path);
 
+void get_client(string parameter, fs::path& current_path);
+
 /*********** COMANDO DO SERVIDOR ***********/
 void cd_server(string& directory, fs::path& current_path);
 
 void ls_server(string parameter, fs::path& current_path);
 
 void put_server(string parameter, fs::path& current_path);
+
+void get_server(string parameter, fs::path& current_path);
 
 #endif
 

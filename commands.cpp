@@ -122,11 +122,12 @@ void put_server(string parameter, fs::path& current_path) {
     string file_path = current_path.generic_u8string() + "/" + parameter;
 
     // Cria arquivo com mesmo nome
-    string cmd = "rm " + file_path + " 2> /dev/null && touch " + file_path;
+    string cmd = "rm -f " + file_path + " && touch " + file_path;
     string result;
     int result_code = execute_command(cmd.c_str(), result);
 
-    // TODO: Adicionar verificação 
+    // TODO: Adicionar verificação se foi possivel criar o arquivo
+
     fstream put_file;
     put_file.open(file_path,  ios_base::in | ios_base::out | ios::binary | ios::ate);   
 
@@ -137,4 +138,36 @@ void put_server(string parameter, fs::path& current_path) {
     receive_file(PUT_TYPE, put_file);
     cout << "Arquivo recebido" << endl;
 
+}
+
+/************************/
+/*      GET             */
+/************************/
+void get_client(string parameter, fs::path& current_path) {
+    string file_path = current_path.generic_u8string() + "/" + parameter;
+    cout << file_path << endl;
+    // Cria arquivo com mesmo nome
+    string cmd = "rm -f " + file_path + " && touch " + file_path;
+    string result;
+    int result_code = execute_command(cmd.c_str(), result);
+
+    cout << cmd << endl;
+    cout << result_code << endl;
+    // TODO: Adicionar verificação se foi possivel criar o arquivo
+    fstream get_file;
+    get_file.open(file_path,  ios_base::in | ios_base::out | ios::binary | ios::ate);   
+
+    send_message(GET_TYPE, get_file, parameter);
+}
+
+void get_server(string parameter, fs::path& current_path) {
+    // Abre arquivo
+    string path_to_file = current_path.generic_u8string() + "/" + parameter;
+    fstream get_file;
+    get_file.open(path_to_file,  ios_base::in | ios_base::out | ios::binary | ios::ate);
+    
+    // TODO: verifica se o arquivo existe
+
+    // Envia comando com nome do arquivo
+    send_message(GET_TYPE, get_file, parameter);
 }

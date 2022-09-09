@@ -43,6 +43,9 @@ int main(int argc, char const* argv[]){
             case CMD_PUT:
                 put_client(param_a, PWD);
                 break;
+            case CMD_GET:
+                get_client(param_a, PWD);
+                break;
             default:
                 break;
         }

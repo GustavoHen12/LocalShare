@@ -317,7 +317,10 @@ int send_file(uint8_t type, fstream& data){
 
         do{
             send_socket(size_msg);
+            cout << "Enviado tamanho do arquivo: " << fileSize << endl;
+
             msg_t *resolve = get_message();
+
             status = processResponse(resolve);
             if(status == RESEND) {
                 app_info.sequence = decrementSequence(app_info.sequence);
@@ -452,11 +455,11 @@ bool message_receive_file(uint8_t type){
 }
 
 bool send_initial_message(uint8_t type) {
-    return (!(app_info.type == SERVER && type == LS_TYPE));
+    return !((app_info.type == SERVER && type == LS_TYPE) || (app_info.type == SERVER && type == GET_TYPE));
 }
 
 bool ignoreResponse(uint8_t type){
-    return type == OK_TYPE || type == NACK_TYPE || type == ACK_TYPE;
+    return type == OK_TYPE || type == NACK_TYPE || type == ACK_TYPE || (type == GET_TYPE && app_info.type == CLIENT);
 }
 
 int send_message(uint8_t type, fstream& data, string param_str) {

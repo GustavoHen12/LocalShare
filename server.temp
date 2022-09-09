@@ -24,5 +24,6 @@ socket_utils.h.gch
 socket_utils.o
 test.cpp
 teste
+teste1.in
 teste.txt
 video.mkv

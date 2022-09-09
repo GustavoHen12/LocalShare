@@ -38,12 +38,16 @@ int main(int argc, char const* argv[]){
                 put_server(param_a, PWD);
                 cout << "Put finalizado: " << PWD << endl;
                 break;
+            case CMD_GET:
+                get_server(param_a, PWD);
+                cout << "Get finalizado: " << PWD << endl;
+                break;
             
             default:
                 break;
         }
     }
-    
+
     shutdown(server_socket, SHUT_RDWR);
     return 0;
 }
@@ -63,6 +67,9 @@ void wait_input(int *command, string &param_a, string &param_b) {
         param_a = vectorToString(msg->data_bytes, msg->size);
     } else if(msg->type == PUT_TYPE) {
         *command = CMD_PUT;
+        param_a = vectorToString(msg->data_bytes, msg->size);
+    } else if(msg->type == GET_TYPE) {
+        *command = CMD_GET;
         param_a = vectorToString(msg->data_bytes, msg->size);
     } else {
         *command = -1;
