@@ -99,6 +99,22 @@ int processResponse(msg_t *response){
     } else if (response->type == NACK_TYPE) {
         return RESEND;
     } else if (response->type == ERROR_TYPE) {
+        if(response->data_bytes.size() > 0) {
+            string error = "";
+            error += ((char) response->data_bytes[0]);
+            if(error == DIR_DONT_EXISTS){
+                cout << "Erro: diretório não existe !" << endl; 
+            } else if (error == DIR_ALREADY_EXISTS) {
+                cout << "Erro: diretório já existe !" << endl; 
+            } else if (error == ERROR_PERMISSION) {
+                cout << "Erro: você não tem permissão !" << endl; 
+            } else if (error == FILE_DONT_EXISTS) {
+                cout << "Erro: arquivo não existe !" << endl; 
+            }
+        } else {
+            cout << "Erro não identificado !!!" << endl;
+        }
+
         return ERROR;
     }
 

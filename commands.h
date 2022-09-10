@@ -22,7 +22,7 @@ using namespace std;
 int getCommandCode(string command);
 
 /*********** COMANDO DO CLIENTE ***********/
-void cd_client(string directory, int attempts=0);
+void cd_client(string directory, fs::path& current_path, fs::path& server_path, bool server_cmd=true);
 
 void ls_client(string parameter);
 

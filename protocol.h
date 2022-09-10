@@ -41,6 +41,11 @@ using namespace std;
 #define PRINT_TYPE    0b111111
 
 /****** ERROR TYPE******/
+#define DIR_DONT_EXISTS    "A"
+#define ERROR_PERMISSION   "B"
+#define DIR_ALREADY_EXISTS "C"
+#define FILE_DONT_EXISTS   "D"
+
 
 /****** MENSSAGE *******/
 #define START_MARKER 0b01111110

@@ -7,6 +7,7 @@ using namespace std;
 
 #include"commands.h"
 fs::path PWD = "";
+fs::path SERVER_PWD = "";
 
 void read_input_user(int *command, string &param_a, string &param_b);
 
@@ -15,6 +16,7 @@ int main(int argc, char const* argv[]){
     init_protocol(CLIENT, client_socket, 0, 7);
 
     PWD = fs::current_path();
+    SERVER_PWD = fs::current_path();
 
     cout << "************ FTP - Redes 1 ************\n";
     cout << "Bem vindo novamente ao FTP !!!\n";
@@ -31,11 +33,15 @@ int main(int argc, char const* argv[]){
     int command;
     string param_a, param_b;
     while(1){
+        // Imprime path atual
+        cout << "Server: " << SERVER_PWD.generic_u8string() << endl;
+        cout << PWD.generic_u8string() << " ";
+
         // Le entrada do comando
         read_input_user(&command, param_a, param_b);
         switch (command) {
             case CMD_CD:
-                cd_client(param_a);
+                cd_client(param_a, PWD, SERVER_PWD);
                 break;
             case CMD_LS:
                 ls_client(param_a);
