@@ -71,7 +71,11 @@ typedef struct {
     int type;         // Se cliente ou servidor
     int socket;
     int target_sequence; // Sequencia do outro
-    int last_type; // Para uso em loopback
+
+    // Para quando a resposta é perdida e é 
+    //necessário reenviar a resposta
+    uint8_t last_response_type; 
+    string last_error_type; 
 } app_info_t;
 
 /****** FUNCTIONS ******/

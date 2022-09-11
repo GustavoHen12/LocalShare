@@ -34,8 +34,10 @@ int main(int argc, char const* argv[]){
     string param_a, param_b;
     while(1){
         // Imprime path atual
+        cout << "\n-----------------\n";
         cout << "Server: " << SERVER_PWD.generic_u8string() << endl;
-        cout << PWD.generic_u8string() << " ";
+        cout << "Local: " <<PWD.generic_u8string() << endl;
+        cout << "-----------------\n";
 
         // Le entrada do comando
         read_input_user(&command, param_a, param_b);
