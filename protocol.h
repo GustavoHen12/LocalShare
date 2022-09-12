@@ -38,7 +38,7 @@ using namespace std;
 #define ERROR_TYPE   0b010001
 #define SIZEF_TYPE   0b011000
 #define END_TYPE     0b101110
-#define PRINT_TYPE    0b111111
+#define PRINT_TYPE   0b111111
 
 /****** ERROR TYPE******/
 #define DIR_DONT_EXISTS    "A"

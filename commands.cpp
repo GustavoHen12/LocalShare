@@ -219,3 +219,40 @@ void get_server(string parameter, fs::path& current_path) {
     // Envia comando com nome do arquivo
     send_message(GET_TYPE, get_file, parameter);
 }
+
+/**************************/
+/*      MKDIR             */
+/**************************/
+void mkdir_client(string parameter, fs::path& current_path) {
+    string file_path = current_path.generic_u8string() + "/" + parameter;
+    cout << file_path << endl;
+    // Cria arquivo com mesmo nome
+    string cmd = "mkdir " + file_path;
+    string result;
+    int result_code = execute_command(cmd.c_str(), result);
+
+    cout << cmd << endl;
+    cout << result_code << endl;
+
+
+    send_message(MKDIR_TYPE, null_file, parameter);
+}
+
+void mkdir_server(string parameter, fs::path& current_path) {
+    // Verificação se arquivo existe
+    fs::path n_path = current_path;
+    append_path(parameter, n_path);
+
+    if(verify_if_exist(n_path, false) == DONT_EXISTS) {
+        send_message(ERROR_TYPE, null_file, FILE_DONT_EXISTS);
+        return;
+    }
+
+    // Abre arquivo
+    string path_to_file = current_path.generic_u8string() + "/" + parameter;
+    fstream get_file;
+    get_file.open(path_to_file,  ios_base::in | ios_base::out | ios::binary | ios::ate);
+
+    // Envia comando com nome do arquivo
+    send_message(MKDIR_TYPE, get_file, parameter);
+}

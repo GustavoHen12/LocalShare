@@ -2,11 +2,11 @@
 #define __COMMANDS__
 
 #include <bits/stdc++.h>
-#include <filesystem>
+#include <experimental/filesystem>
 #include <sys/types.h>
 #include <sys/stat.h>
 
-namespace fs = std::filesystem;
+namespace fs = std::experimental::filesystem;
 using namespace std;
 
 #include"protocol.h"
@@ -30,6 +30,8 @@ void put_client(string parameter, fs::path& current_path);
 
 void get_client(string parameter, fs::path& current_path);
 
+void mkdir_client(string parameter, fs::path& current_path);
+
 /*********** COMANDO DO SERVIDOR ***********/
 void cd_server(string& directory, fs::path& current_path);
 
@@ -38,6 +40,8 @@ void ls_server(string parameter, fs::path& current_path);
 void put_server(string parameter, fs::path& current_path);
 
 void get_server(string parameter, fs::path& current_path);
+
+void mkdir_server(string parameter, fs::path& current_path);
 
 #endif
 

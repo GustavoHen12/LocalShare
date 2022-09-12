@@ -23,19 +23,19 @@ DEBUG_FLAGS = -g -DDEBUG
 all: client server
 
 client: $(OBJ_CLIENT)
-	$(CC) -o $@ $^ $(DEBUG_FLAGS)
+	$(CC) -o $@ $^ $(DEBUG_FLAGS) -lstdc++fs
 
 server: $(OBJ_SERVER)
-	$(CC) -o $@ $^ $(DEBUG_FLAGS)
+	$(CC) -o $@ $^ $(DEBUG_FLAGS) -lstdc++fs
 
 %.o: %.c %.h
 	$(CC) -o $@ $< $(CC_FLAGS) $(DEBUG_FLAGS)
 
 server.o: server.cpp $(H_SOURCE_SERVER)
-	$(CC) -c $@ $^ $(DEBUG_FLAGS)
+	$(CC) -c $^ $(DEBUG_FLAGS)
 
 client.o: client.cpp  $(H_SOURCE_CLIENT)
-	$(CC) -c $@ $^ $(DEBUG_FLAGS)
+	$(CC) -c $^ $(DEBUG_FLAGS)
 
 clean:
 	-rm -f *~ *.o *.h.gch

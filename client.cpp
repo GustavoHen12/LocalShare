@@ -19,7 +19,7 @@ int main(int argc, char const* argv[]){
     SERVER_PWD = fs::current_path();
 
     cout << "************ FTP - Redes 1 ************\n";
-    cout << "Bem vindo novamente ao FTP !!!\n";
+    cout << "Bem vindo ao FTP !!!\n";
     cout << "Comandos: \n";
     cout << "\t > cd [DIR]\n";
     cout << "\t > ls [-a] [-l]\n";
@@ -54,6 +54,8 @@ int main(int argc, char const* argv[]){
             case CMD_GET:
                 get_client(param_a, PWD);
                 break;
+            case CMD_MKDIR:
+                mkdir_client(param_a, PWD);
             default:
                 break;
         }
