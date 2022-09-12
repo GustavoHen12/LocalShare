@@ -56,7 +56,7 @@ using namespace std;
 
 // #define DEBUG_PROTOCOL
 
-#define LO_MODE
+// #define LO_MODE
 
 typedef struct {
     uint8_t type;         // Tipo = 6bits

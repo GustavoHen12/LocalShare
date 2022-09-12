@@ -14,7 +14,7 @@ using namespace std;
 void wait_input(int *command, string &param_a, string &param_b);
 
 int main(int argc, char const* argv[]){
-    int server_socket = conect_raw_socket("lo");
+    int server_socket = conect_raw_socket("eno1");
     init_protocol(SERVER, server_socket, 7, 0);
 
     PWD = fs::current_path();
@@ -42,7 +42,9 @@ int main(int argc, char const* argv[]){
                 get_server(param_a, PWD);
                 cout << "Get finalizado: " << PWD << endl;
                 break;
-            
+            case CMD_MKDIR:
+                mkdir_server(param_a, PWD);
+                cout << "Mkdir finalizado: " << PWD << endl;
             default:
                 break;
         }
@@ -70,6 +72,9 @@ void wait_input(int *command, string &param_a, string &param_b) {
         param_a = vectorToString(msg->data_bytes, msg->size);
     } else if(msg->type == GET_TYPE) {
         *command = CMD_GET;
+        param_a = vectorToString(msg->data_bytes, msg->size);
+    } else if(msg->type == MKDIR_TYPE) {
+        *command = CMD_MKDIR;
         param_a = vectorToString(msg->data_bytes, msg->size);
     } else {
         *command = -1;

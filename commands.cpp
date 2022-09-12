@@ -224,35 +224,32 @@ void get_server(string parameter, fs::path& current_path) {
 /*      MKDIR             */
 /**************************/
 void mkdir_client(string parameter, fs::path& current_path) {
-    string file_path = current_path.generic_u8string() + "/" + parameter;
-    cout << file_path << endl;
-    // Cria arquivo com mesmo nome
-    string cmd = "mkdir " + file_path;
+    
+    send_message(MKDIR_TYPE, null_file, parameter);
+    cout << "AQUI" << endl;
+}
+
+void mkdir_server(string parameter, fs::path& current_path) {
+
+    fs::path n_path = current_path;
+    append_path(parameter, n_path);
+
+    if(verify_if_exist(n_path) == EXISTS) {
+        send_message(ERROR_TYPE, null_file, DIR_ALREADY_EXISTS);
+        return;
+    } /* if(verify_permission(n_path) == DONT_HAVE_PERMISSION){
+        send_message(ERROR_TYPE, null_file, ERROR_PERMISSION);
+        return;
+    } */
+
+    // Cria diretorio com mesmo nome
+    string cmd = "mkdir " + n_path.generic_u8string();
     string result;
     int result_code = execute_command(cmd.c_str(), result);
 
     cout << cmd << endl;
     cout << result_code << endl;
 
+    send_message(OK_TYPE, null_file);
 
-    send_message(MKDIR_TYPE, null_file, parameter);
-}
-
-void mkdir_server(string parameter, fs::path& current_path) {
-    // Verificação se arquivo existe
-    fs::path n_path = current_path;
-    append_path(parameter, n_path);
-
-    if(verify_if_exist(n_path, false) == DONT_EXISTS) {
-        send_message(ERROR_TYPE, null_file, FILE_DONT_EXISTS);
-        return;
-    }
-
-    // Abre arquivo
-    string path_to_file = current_path.generic_u8string() + "/" + parameter;
-    fstream get_file;
-    get_file.open(path_to_file,  ios_base::in | ios_base::out | ios::binary | ios::ate);
-
-    // Envia comando com nome do arquivo
-    send_message(MKDIR_TYPE, get_file, parameter);
 }

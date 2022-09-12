@@ -12,7 +12,7 @@ fs::path SERVER_PWD = "";
 void read_input_user(int *command, string &param_a, string &param_b);
 
 int main(int argc, char const* argv[]){
-    int client_socket = conect_raw_socket("lo");
+    int client_socket = conect_raw_socket("eno1");
     init_protocol(CLIENT, client_socket, 0, 7);
 
     PWD = fs::current_path();
