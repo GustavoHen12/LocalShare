@@ -39,9 +39,7 @@ int verify_permission(string path) {
     string cmd = "stat -c \"%a\" " + path;
     string result;
     int result_code = execute_command(cmd.c_str(), result);
-    cout << cmd << " - " << result << endl;
     if(result[0] != '7'){
-        cout << "Sem permissão" << endl;
         return DONT_HAVE_PERMISSION;
     }
 
@@ -51,14 +49,12 @@ int verify_permission(string path) {
 int verify_if_exist(string path, bool isDir=true) {
     string op = isDir ? "d" : "f";
     string cmd = "test -" + op + " " + path +" && echo \"1\"";
-    cout << cmd << endl;
     string result;
     int result_code = execute_command(cmd.c_str(), result);
     if(result_code == 0 && result.size() > 0 && result[0] == '1'){
         return EXISTS;
     }
 
-    cout << "Não existe" << endl;
     return DONT_EXISTS;
 }
 
@@ -72,16 +68,62 @@ int append_path(string new_path, fs::path& current_path) {
     return 1;
 }
 
+bool isLocalCommand(string paramA, string paramB){
+    if(paramA.size() > 0 && paramA == "-m")
+        return true;
+    if(paramB.size() > 0 && paramB == "-m")
+        return true;
+
+    return false;
+}
+
+string getParameter(string paramA, string paramB){
+    if(paramB.size() == 0 || paramB == "-m")
+        return paramA;
+    if(paramA.size() == 0 || paramA == "-m")
+        return paramB;
+
+    return paramA;
+}
+
 /************************/
 /*      CD              */
 /************************/
 
-void cd_client(string directory, fs::path& current_path, fs::path& server_path, bool server_cmd) {
-    // Envia menssagem
-    int result = send_message(CD_TYPE, null_file, directory);
+void cd_client(string parameter, string parameter_aux, fs::path& current_path, fs::path& server_path) {
+    bool isLocal = isLocalCommand(parameter, parameter_aux);
+    string directory = getParameter(parameter, parameter_aux);
+    if(!isLocal){
+        // Envia menssagem
+        int result = send_message(CD_TYPE, null_file, directory);
 
-    if(result == MESSAGE_SENT){
-        append_path(directory, server_path);
+        if(result == MESSAGE_SENT){
+            append_path(directory, server_path);
+        }
+    } else {
+        fs::path n_path = current_path;
+        append_path(directory, n_path);
+
+        // Verifica se o diretório existe
+        if(verify_if_exist(n_path.generic_u8string()) != EXISTS){
+            cout << "Diretorio não existe" << endl;
+            return;
+        }
+
+        // Verifica se o usuário tem permissão
+        if(verify_permission(n_path.generic_u8string()) != HAVE_PERMISSION){
+            cout << "Você não tem permissão para acessar esse diretório" << endl;
+            return;
+        }
+
+        string cmd = "cd " + n_path.generic_u8string();
+        string result;
+        int result_code = execute_command(cmd.c_str(), result);
+        if(result_code == 0){
+            append_path(directory, current_path);
+        } else {
+            cout << "Não foi possível executar esse comando" << endl;
+        }
     }
 }
 
@@ -117,14 +159,30 @@ void cd_server(string& directory, fs::path& current_path) {
 /*      LS              */
 /************************/
 
-void ls_client(string parameter) {    
-    // Envia menssagem
-    send_message(LS_TYPE, null_file, parameter);
+void ls_client(string parameter, string parameter_aux, fs::path& current_path) {
+    bool isLocal = isLocalCommand(parameter, parameter_aux);
+    string param = getParameter(parameter, parameter_aux);
+    if(!isLocal){
+        // Envia menssagem
+        send_message(LS_TYPE, null_file, param);
+    } else {
+        string cmd = "ls " + current_path.generic_u8string();
+        if(param.size() > 0){
+            cmd += " " + param + " ";
+        }
+        string result;
+        int result_code = execute_command(cmd.c_str(), result);
+        cout << result << endl;
+    }
 }
 
 void ls_server(string parameter, fs::path& current_path) {
     
-    string cmd = "ls " + current_path.generic_u8string() + " > server.temp";
+    string cmd = "ls " + current_path.generic_u8string();
+    if(parameter.size() > 0){
+        cmd += " " + parameter + " ";
+    }
+    cmd += " > server.temp";
     string result;
 
     int result_code = execute_command(cmd.c_str(), result);
@@ -223,24 +281,38 @@ void get_server(string parameter, fs::path& current_path) {
 /**************************/
 /*      MKDIR             */
 /**************************/
-void mkdir_client(string parameter, fs::path& current_path) {
-    
-    send_message(MKDIR_TYPE, null_file, parameter);
-    cout << "AQUI" << endl;
+void mkdir_client(string parameter, string parameter_aux, fs::path& current_path) {
+    bool isLocal = isLocalCommand(parameter, parameter_aux);
+    string param = getParameter(parameter, parameter_aux);
+    if(!isLocal){
+        send_message(MKDIR_TYPE, null_file, parameter);
+    } else {
+        fs::path n_path = current_path;
+        n_path.append(parameter);
+
+        if(verify_if_exist(n_path) == EXISTS) {
+            cout << "Diretório já existe" << endl;
+            return;
+        } 
+        
+        string cmd = "mkdir " + n_path.generic_u8string();
+        string result;
+        int result_code = execute_command(cmd.c_str(), result);
+        if(result_code != 0){
+            cout << "Não foi possível executar o comando" << endl;
+        }
+    }
 }
 
 void mkdir_server(string parameter, fs::path& current_path) {
 
     fs::path n_path = current_path;
-    append_path(parameter, n_path);
+    n_path.append(parameter);
 
     if(verify_if_exist(n_path) == EXISTS) {
         send_message(ERROR_TYPE, null_file, DIR_ALREADY_EXISTS);
         return;
-    } /* if(verify_permission(n_path) == DONT_HAVE_PERMISSION){
-        send_message(ERROR_TYPE, null_file, ERROR_PERMISSION);
-        return;
-    } */
+    } 
 
     // Cria diretorio com mesmo nome
     string cmd = "mkdir " + n_path.generic_u8string();

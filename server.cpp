@@ -14,7 +14,11 @@ using namespace std;
 void wait_input(int *command, string &param_a, string &param_b);
 
 int main(int argc, char const* argv[]){
-    int server_socket = conect_raw_socket("eno1");
+    string adress = "eno1";
+    #ifdef LO_MODE
+        adress = "lo";
+    #endif
+    int server_socket = conect_raw_socket(adress.c_str());
     init_protocol(SERVER, server_socket, 7, 0);
 
     PWD = fs::current_path();

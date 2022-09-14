@@ -39,10 +39,10 @@ int conect_raw_socket(const char *device) {
   }
 
   // Seta um timeout
-  // struct timeval timeout;
-  // timeout.tv_sec = 2;
-  // timeout.tv_usec = 0;
-  // setsockopt(soquete, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+  struct timeval timeout;
+  timeout.tv_sec = 2;
+  timeout.tv_usec = 0;
+  setsockopt(soquete, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 
   return soquete;
 }

@@ -22,15 +22,15 @@ using namespace std;
 int getCommandCode(string command);
 
 /*********** COMANDO DO CLIENTE ***********/
-void cd_client(string directory, fs::path& current_path, fs::path& server_path, bool server_cmd=true);
+void cd_client(string parameter, string parameter_aux, fs::path& current_path, fs::path& server_path);
 
-void ls_client(string parameter);
+void ls_client(string parameter, string parameter_aux, fs::path& current_path);
+
+void mkdir_client(string parameter, string parameter_aux, fs::path& current_path);
 
 void put_client(string parameter, fs::path& current_path);
 
 void get_client(string parameter, fs::path& current_path);
-
-void mkdir_client(string parameter, fs::path& current_path);
 
 /*********** COMANDO DO SERVIDOR ***********/
 void cd_server(string& directory, fs::path& current_path);
