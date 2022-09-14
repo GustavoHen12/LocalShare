@@ -209,8 +209,8 @@ void ls_server(string parameter, fs::path& current_path) {
 void put_client(string parameter, fs::path& current_path) {
     // Verificação se arquivo existe
     fs::path n_path = current_path;
-    //append_path(parameter, n_path);
-   n_path.append(parameter);
+    
+    n_path.append(parameter);
     if(verify_if_exist(n_path, false) == DONT_EXISTS) {
         cout << "Arquivo não existe" << endl;
         return;

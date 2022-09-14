@@ -444,6 +444,10 @@ int receive_file(uint8_t type, fstream& data) {
         cout << "Recendo tamanho do arquivo" << endl;
 
         msg_t *size_msg = get_message();
+        int status = processResponse(size_msg);
+        if(status == ERROR)
+            return ERROR;
+        
         if(size_msg->type == SIZEF_TYPE) {
             vector<uint8_t> size_v = size_msg->data_bytes;
             long long size = 0;
