@@ -1,8 +1,7 @@
-.
-..
-doc.pdf
-foto.jpg
-README.md
-teste3
-teste.txt
-video.mkv
+total 11620
+-rw-rw-r-- 1 mint mint      33 Sep 14 19:04 README.md
+-rw-rw-r-- 1 mint mint   74958 Sep 14 19:04 doc.pdf
+-rw-rw-r-- 1 mint mint 6582732 Sep 14 19:04 foto.jpg
+-rw-r--r-- 1 root root 2367488 Sep 14 19:14 foto2.jpg
+-rw-rw-r-- 1 mint mint      13 Sep 14 19:04 teste.txt
+-rw-rw-r-- 1 mint mint 2856494 Sep 14 19:04 video.mkv

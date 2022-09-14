@@ -310,7 +310,7 @@ msg_t *get_message(){
 
         // Verifica se a mensagem que foi recebida é a esperada
         if((msg != NULL) && (msg->sequence >= 0)){
-            int last_sequence = decrementSequence(msg->sequence, true);
+            int last_sequence = decrementSequence(app_info.target_sequence, true);
             // Verifica se a mensagem é a atual ou a anterior
             if(msg->sequence == app_info.target_sequence){
                 // Se for a atual incrementa o contador e retorna a mensagem
@@ -322,6 +322,8 @@ msg_t *get_message(){
                 vector<uint8_t> param = stringToVector(app_info.last_error_type);
                 msg_t *last_msg = new_message(app_info.last_response_type, param);
                 send_socket(last_msg);
+            } else {
+                cout << "Sequencia invalida: " << (int) msg->sequence << "/" << app_info.target_sequence << endl;
             }
         }
     } while(1);
@@ -336,7 +338,7 @@ msg_t* wait_until_valid(msg_t *last_msg){
         resolve = get_message();
         status = processResponse(resolve);
         if(status == RESEND){
-            cout << "Mensagem invalida" << endl;
+            cout << "Mensagem invalida, vai reenviar" << endl;
             // Como na ultima vez que enviou a sequancia foi incrementada
             // decrementa para enviar com a mesma sequencia
             app_info.sequence = decrementSequence(app_info.sequence);
@@ -383,8 +385,8 @@ int send_file(uint8_t type, fstream& data){
         // Manda 4 pacotes de uma vez
         int sended = 0;
         int bytes_sended = 0;
-        for(sended = 0; sended < 4; sended++){
-            // cout << "Enviadas " << app_info.sequence << endl;
+        for(sended = 0; sended < WINDOW_SIZE; sended++){
+            cout << "Enviadas " << app_info.sequence << endl;
             // Pega tamanho em bytes do bloco a ser enviado
             int bytes = to_send < DATA_SIZE_BYTES ? to_send : DATA_SIZE_BYTES;
             char *datablock = new char[bytes];
@@ -421,8 +423,10 @@ int send_file(uint8_t type, fstream& data){
                 // Volta a sequencia
                 for(int i = 0; i < sended; i++) 
                     app_info.sequence = decrementSequence(app_info.sequence);
+                
                 // Aumenta quantas ainda deve enviar
                 to_send += sended;
+                
                 // Volta o cursor
                 data.seekg((-1) * bytes_sended, ios_base::cur);
             }
@@ -444,6 +448,10 @@ int receive_file(uint8_t type, fstream& data) {
         cout << "Recendo tamanho do arquivo" << endl;
 
         msg_t *size_msg = get_message();
+        int status = processResponse(size_msg);
+        if(status == ERROR)
+            return ERROR;
+        
         if(size_msg->type == SIZEF_TYPE) {
             vector<uint8_t> size_v = size_msg->data_bytes;
             long long size = 0;
@@ -488,7 +496,7 @@ int receive_file(uint8_t type, fstream& data) {
         }
     
         if(status == RESEND){
-            send_message(NACK_TYPE, null_file);
+           // send_message(NACK_TYPE, null_file);
         } else {
             send_message(ACK_TYPE, null_file);
         }
