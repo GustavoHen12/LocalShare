@@ -49,6 +49,9 @@ int verify_permission(string path) {
 int verify_if_exist(string path, bool isDir=true) {
     string op = isDir ? "d" : "f";
     string cmd = "test -" + op + " " + path +" && echo \"1\"";
+    
+    cout << cmd << endl;
+    
     string result;
     int result_code = execute_command(cmd.c_str(), result);
     if(result_code == 0 && result.size() > 0 && result[0] == '1'){
@@ -206,8 +209,8 @@ void ls_server(string parameter, fs::path& current_path) {
 void put_client(string parameter, fs::path& current_path) {
     // Verificação se arquivo existe
     fs::path n_path = current_path;
-    append_path(parameter, n_path);
-
+    //append_path(parameter, n_path);
+   n_path.append(parameter);
     if(verify_if_exist(n_path, false) == DONT_EXISTS) {
         cout << "Arquivo não existe" << endl;
         return;
@@ -264,7 +267,7 @@ void get_client(string parameter, fs::path& current_path) {
 void get_server(string parameter, fs::path& current_path) {
     // Verificação se arquivo existe
     fs::path n_path = current_path;
-    append_path(parameter, n_path);
+    n_path.append(parameter);
 
     if(verify_if_exist(n_path, false) == DONT_EXISTS) {
         send_message(ERROR_TYPE, null_file, FILE_DONT_EXISTS);

@@ -1,29 +1,7 @@
-total 189624
--rwxrwxr-x 1 calebe calebe   544320 set 13 23:19 client
--rw-rw-r-- 1 calebe calebe     3199 set 13 22:45 client.cpp
--rw-rw-r-- 1 calebe calebe   455216 set 13 23:05 client.o
--rw-rw-r-- 1 calebe calebe     9587 set 13 23:19 commands.cpp
--rw-rw-r-- 1 calebe calebe     1200 set 13 22:45 commands.h
--rw-rw-r-- 1 calebe calebe 93751152 set 13 23:06 commands.h.gch
--rw-rw-r-- 1 calebe calebe   127224 set 13 23:19 commands.o
--rw-rw-r-- 1 calebe calebe    74958 set 13 22:45 doc.pdf
--rw-rw-r-- 1 calebe calebe  3291366 set 13 22:45 foto.jpg
--rw-rw-r-- 1 calebe calebe      893 set 13 22:45 makefile
--rw-rw-r-- 1 calebe calebe    16735 set 13 22:45 protocol.cpp
--rw-rw-r-- 1 calebe calebe     2158 set 13 22:45 protocol.h
--rw-rw-r-- 1 calebe calebe 87827824 set 13 23:06 protocol.h.gch
--rw-rw-r-- 1 calebe calebe   116376 set 13 23:05 protocol.o
--rw-rw-r-- 1 calebe calebe       33 set 13 22:45 README.md
--rwxrwxr-x 1 calebe calebe   555320 set 13 23:19 server
--rw-rw-r-- 1 calebe calebe     2480 set 13 22:46 server.cpp
--rw-rw-r-- 1 calebe calebe   459616 set 13 23:06 server.o
--rw-rw-r-- 1 calebe calebe        0 set 13 23:20 server.temp
--rw-rw-r-- 1 calebe calebe     1297 set 13 22:45 socket_utils.cpp
--rw-rw-r-- 1 calebe calebe      535 set 13 22:45 socket_utils.h
--rw-rw-r-- 1 calebe calebe  3993296 set 13 23:06 socket_utils.h.gch
--rw-rw-r-- 1 calebe calebe     2960 set 13 23:05 socket_utils.o
--rw-rw-r-- 1 calebe calebe      847 set 13 22:45 test.cpp
-drwxrwxr-x 4 calebe calebe     4096 set 13 23:13 teste
--rw-rw-r-- 1 calebe calebe       24 set 13 22:45 teste1.in
--rw-rw-r-- 1 calebe calebe       13 set 13 22:45 teste.txt
--rw-rw-r-- 1 calebe calebe  2856494 set 13 22:45 video.mkv
+total 11620
+-rw-rw-r-- 1 mint mint      33 Sep 14 19:04 README.md
+-rw-rw-r-- 1 mint mint   74958 Sep 14 19:04 doc.pdf
+-rw-rw-r-- 1 mint mint 6582732 Sep 14 19:04 foto.jpg
+-rw-r--r-- 1 root root 2367488 Sep 14 19:14 foto2.jpg
+-rw-rw-r-- 1 mint mint      13 Sep 14 19:04 teste.txt
+-rw-rw-r-- 1 mint mint 2856494 Sep 14 19:04 video.mkv

@@ -488,7 +488,7 @@ int receive_file(uint8_t type, fstream& data) {
         }
     
         if(status == RESEND){
-            send_message(NACK_TYPE, null_file);
+           // send_message(NACK_TYPE, null_file);
         } else {
             send_message(ACK_TYPE, null_file);
         }
