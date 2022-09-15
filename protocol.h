@@ -21,7 +21,7 @@ using namespace std;
 #define RESEND  -2
 #define END_COMMAND  2
 
-#define WINDOW_SIZE 4
+#define WINDOW_SIZE 2
 
 /****** MESSAGE TYPES ******/
 #define OK_TYPE     0b000001
@@ -56,7 +56,7 @@ using namespace std;
 
 // #define DEBUG_PROTOCOL
 
-// #define LO_MODE
+#define LO_MODE
 
 typedef struct {
     uint8_t type;         // Tipo = 6bits
@@ -73,9 +73,10 @@ typedef struct {
     int target_sequence; // Sequencia do outro
 
     // Para quando a resposta é perdida e é 
-    //necessário reenviar a resposta
-    uint8_t last_response_type; 
-    string last_error_type; 
+    // necessário reenviar a resposta
+    msg_t *last_msg; 
+    int last_sequence;
+    int last_msg_replied;
 } app_info_t;
 
 /****** FUNCTIONS ******/

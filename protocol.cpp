@@ -163,10 +163,13 @@ void send_socket(msg_t *msg){
     msg_bytes[msg_bytes_size] = msg->parity;
     msg_bytes_size++;
     
-    debug_cout("Enviando mensagem " << msg->sequence << "...");
     send(app_info.socket, msg_bytes, msg_bytes_size, 0); 
-    debug_cout("Enviado");
     
+    // Salva mensagem
+    app_info.last_msg = msg;
+    app_info.last_sequence = app_info.sequence;
+    app_info.last_msg_replied = decrementSequence(app_info.target_sequence, true);
+
     // Incrementa sequencia
     app_info.sequence = incrementSequence(app_info.sequence);
 }
@@ -286,12 +289,13 @@ void init_protocol(int type, int socket, int sequence, int target_sequence){
     }
 #endif
 
+    app_info.last_msg_replied = -1;
+    app_info.last_sequence = -1;
 }
 
 msg_t *get_message(){
-    debug_cout("Esperando mensagem");
+    //cout << "Esperando mensagem" << endl;
     do{
-
         vector<uint8_t> buf(300);
         int bytes = recv(app_info.socket, buf.data(), buf.size() - 1, 0);
 
@@ -310,20 +314,18 @@ msg_t *get_message(){
 
         // Verifica se a mensagem que foi recebida é a esperada
         if((msg != NULL) && (msg->sequence >= 0)){
-            int last_sequence = decrementSequence(app_info.target_sequence, true);
             // Verifica se a mensagem é a atual ou a anterior
             if(msg->sequence == app_info.target_sequence){
                 // Se for a atual incrementa o contador e retorna a mensagem
                 app_info.target_sequence = incrementSequence(app_info.target_sequence, true);
                 return msg;
-            } else if (msg->sequence == last_sequence) {
-                cout << "Responde ultima mensagem" << endl;
+            } else if (app_info.last_msg_replied != -1 && msg->sequence == app_info.last_msg_replied) {
+                // cout << "Responde ultima mensagem" << endl;
                 // Se for uma anterior, significa que a resposta foi perdida então é reenviada
-                vector<uint8_t> param = stringToVector(app_info.last_error_type);
-                msg_t *last_msg = new_message(app_info.last_response_type, param);
-                send_socket(last_msg);
-            } else {
-                cout << "Sequencia invalida: " << (int) msg->sequence << "/" << app_info.target_sequence << endl;
+                int seq = app_info.sequence;
+                app_info.sequence = app_info.last_sequence;
+                send_socket(app_info.last_msg);
+                app_info.sequence = seq;
             }
         }
     } while(1);
@@ -386,7 +388,7 @@ int send_file(uint8_t type, fstream& data){
         int sended = 0;
         int bytes_sended = 0;
         for(sended = 0; sended < WINDOW_SIZE; sended++){
-            cout << "Enviadas " << app_info.sequence << endl;
+            // cout << "Enviadas " << app_info.sequence << endl;
             // Pega tamanho em bytes do bloco a ser enviado
             int bytes = to_send < DATA_SIZE_BYTES ? to_send : DATA_SIZE_BYTES;
             char *datablock = new char[bytes];
@@ -411,7 +413,7 @@ int send_file(uint8_t type, fstream& data){
             }
         }
 
-        if(sended >= 3){
+        if(sended >= (WINDOW_SIZE - 1)){
             msg_t *answer = get_message();
             int status = processResponse(answer);
             if(status == ERROR){
@@ -495,9 +497,7 @@ int receive_file(uint8_t type, fstream& data) {
             }
         }
     
-        if(status == RESEND){
-           // send_message(NACK_TYPE, null_file);
-        } else {
+        if(status != RESEND){
             send_message(ACK_TYPE, null_file);
         }
     } while(status != END_COMMAND);
@@ -555,9 +555,6 @@ int send_message(uint8_t type, fstream& data, string param_str) {
         if(!ignoreResponse(type)){
             msg_t *resolve = wait_until_valid(start_msg);
             status = processResponse(resolve);
-        } else if(isResponseMessage(type)) {
-            app_info.last_response_type = type;
-            if(type==ERROR) app_info.last_error_type = param_str;
         }
     }
 

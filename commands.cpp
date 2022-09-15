@@ -133,7 +133,6 @@ void cd_client(string parameter, string parameter_aux, fs::path& current_path, f
 void cd_server(string& directory, fs::path& current_path) {
     // Processa string
     fs::path n_path = current_path;
-    // cout << "AQUIIII " + n_path.generic_u8string() << endl;         Importante ver isso aqui
     append_path(directory, n_path);
 
 
@@ -318,8 +317,6 @@ void mkdir_server(string parameter, fs::path& current_path) {
         send_message(ERROR_TYPE, null_file, DIR_ALREADY_EXISTS);
         return;
     } 
-
-
 
     // Cria diretorio com mesmo nome
     string cmd = "mkdir " + n_path.generic_u8string();
