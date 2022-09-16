@@ -156,13 +156,15 @@ msg_t *bytesToMessage(vector<uint8_t> buffer, int buffer_size){
         if(i + 3 >= buffer_size){
             return NULL;
         }
-        /*
+        
         if(!problemByte(last_byte)){
             data.push_back((uint8_t) buffer[i + 3]);
+        } else {
+            msg->size--;
         }
         last_byte = buffer[i + 3];
-        */
-        data.push_back((uint8_t) buffer[i + 3]);
+        
+        //data.push_back((uint8_t) buffer[i + 3]);
         parity^= (uint8_t) buffer[i + 3];
     }
     msg->data_bytes = data;
@@ -210,17 +212,17 @@ msg_t *new_message(uint8_t type, vector<uint8_t> &data) {
     msg->sequence = (app_info.sequence & 0b00001111);
 
     if(data.size() > 0){
-        msg->size = (data.size() & 0b00111111);
+        // msg->size = (data.size() & 0b00111111);
 
-        msg->data_bytes = data;
+        // msg->data_bytes = data;
 
-        // Calcula paridade
-        uint8_t parity = 0;
-        for(auto &bt : data){
-            parity ^= bt;
-        }
+        // // Calcula paridade
+        // uint8_t parity = 0;
+        // for(auto &bt : data){
+        //     parity ^= bt;
+        // }
 
-        /*
+        
         vector<uint8_t> data_msg;
         int size = data.size();
         int i = 0;
@@ -228,7 +230,7 @@ msg_t *new_message(uint8_t type, vector<uint8_t> &data) {
             data_msg.push_back(data[i]);
             if(problemByte(data[i])){
                 i++;
-                data_msg.push_back(data[i]);
+                data_msg.push_back(0xf);
                 size++;
             }
             i++;
@@ -240,7 +242,6 @@ msg_t *new_message(uint8_t type, vector<uint8_t> &data) {
         for(auto &bt : data_msg){
             parity ^= bt;
         }
-        */
        
         msg->parity = parity;
     } else {
@@ -420,18 +421,9 @@ int send_file(uint8_t type, fstream& data){
     long long to_send = fileSize;
     cout << "File size: " << size << "\n";
 
+    long long bytes_sended_size = 0;
     vector<pair<msg_t *, int>> buffer_send;
-    while(to_send > 0){
-        // Limpa o buffer
-        int i = 0;
-        while(i < buffer_send.size()){
-            if(buffer_send[i].second == 1){
-                buffer_send.erase(buffer_send.begin() + i);
-            } else {
-                i++;
-            }
-        }
-
+    while(to_send > 0 || buffer_send.size() > 0){
         // Preenche o buffer
         int bytes_sended = 0;
         while (to_send > 0 && buffer_send.size() != WINDOW_SIZE) {
@@ -452,11 +444,11 @@ int send_file(uint8_t type, fstream& data){
 
             buffer_send.push_back(make_pair(data_msg, 0));
             to_send -= bytes;
+            bytes_sended_size += bytes;
         }
         
         // Envia
         for(int i = 0; i < buffer_send.size(); i++){
-            cout << "Enviando: " << (int)(buffer_send[i].first)->sequence << endl; 
             raw_send(buffer_send[i].first);
         }
 
@@ -486,24 +478,33 @@ int send_file(uint8_t type, fstream& data){
                         }
                     }
                 } else {
+                    bytes_not_sended = bytes_sended;
                     for(int i = 0; i < buffer_send.size(); i++) {
-                        bytes_not_sended += (buffer_send[i].first)->data_bytes.size(); 
+                        buffer_send[i].second = 0;
                     }
                 }
                 
                 // Aumenta quantas ainda deve enviar
-                to_send += bytes_not_sended;
-                
-                // Volta o cursor
-                data.seekg((-1) * bytes_not_sended, ios_base::cur);
+                bytes_sended_size -= bytes_not_sended;                
             } else {
                 for(int i = 0; i < buffer_send.size(); i++) {
                     buffer_send[i].second = 1; 
                 }
             }
         }
+
+        // Limpa o buffer
+        int i = 0;
+        while(i < buffer_send.size()){
+            if(buffer_send[i].second == 1){
+                buffer_send.erase(buffer_send.begin() + i);
+            } else {
+                i++;
+            }
+        }
     }
 
+    cout << "Enviei: " << bytes_sended_size << " bytes" << endl;
     vector<uint8_t> nada;
     msg_t *end_msg = new_message(END_TYPE, nada);
     send_socket(end_msg);
@@ -543,6 +544,7 @@ int receive_file(uint8_t type, fstream& data) {
     int bytes_received = 0;
     // Enquanto não houver erro
     vector<msg_t *> buffer_receive;
+    int last_seq = -1;
     do {
         msg_t *msg = get_message();
 
@@ -561,6 +563,9 @@ int receive_file(uint8_t type, fstream& data) {
                 data << msg->data_bytes[i];
                 bytes_received++;
             }
+            cout << last_seq;
+            if(last_seq == (int)(msg->sequence))
+                cout << "Recebi a mesma novamente" << endl;
             status = MESSAGE_SENT;
             buffer_receive.push_back(msg);
         } else if(msg->type == END_TYPE){
@@ -568,9 +573,9 @@ int receive_file(uint8_t type, fstream& data) {
             break;
         }
 
-        if(buffer_receive.size() == WINDOW_SIZE){
+        if(buffer_receive.size() >= WINDOW_SIZE){
             // cout << "Recebeu buffer" << endl;
-            if(status != RESEND){
+            if(status == MESSAGE_SENT){
                 send_message(ACK_TYPE, null_file);
                 buffer_receive.clear();
             }
