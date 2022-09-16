@@ -21,7 +21,7 @@ using namespace std;
 #define RESEND  -2
 #define END_COMMAND  2
 
-#define WINDOW_SIZE 2
+#define WINDOW_SIZE 4
 
 /****** MESSAGE TYPES ******/
 #define OK_TYPE     0b000001
@@ -77,6 +77,7 @@ typedef struct {
     msg_t *last_msg; 
     int last_sequence;
     int last_msg_replied;
+    int last_msg_received;
 } app_info_t;
 
 /****** FUNCTIONS ******/

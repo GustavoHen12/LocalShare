@@ -28,15 +28,15 @@ int main(int argc, char const* argv[]){
     while(1){
         // Espera comando de entrada
         wait_input(&command, param_a, param_b);
-        cout << command << " - " << param_a << endl;
+        cout << (command == -1 ? "Aguardando comando..." : "Comando recebido") << endl;
         switch (command) {
             case CMD_CD:
                 cd_server(param_a, PWD);
-                cout << "PWD: " << PWD << endl;
+                cout << "Cd finalizado: " << PWD << endl;
                 break;
             case CMD_LS:
                 ls_server(param_a, PWD);
-                cout << "Finalizado: " << PWD << endl;
+                cout << "Ls finalizado: " << PWD << endl;
                 break;
             case CMD_PUT:
                 put_server(param_a, PWD);
@@ -83,6 +83,4 @@ void wait_input(int *command, string &param_a, string &param_b) {
     } else {
         *command = -1;
     }
-
-    // TODO: Implementar demais leituras aqui
 }

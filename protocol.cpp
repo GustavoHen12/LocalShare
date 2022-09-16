@@ -20,10 +20,6 @@ void printMessage(msg_t *msg, string prefix){
     cout << endl;
 }
 
-void print_error(msg_t *error_msg){
-    cout << "ERRO" << endl;
-}
-
 vector<uint8_t> charToVector(char *data, int size){
     vector<uint8_t> dt(size);
     for(int i = 0; i < size; i++){
@@ -121,59 +117,6 @@ int processResponse(msg_t *response){
     return 0;
 }
 
-/*
-* Função recebe como parametro uma mensagem e envia ela para o socket
-*/
-void send_socket(msg_t *msg){
-    int max_size = msg->size + 5 + MSG_MIN_SIZE;
-    uint8_t msg_bytes[max_size];
-
-    int msg_bytes_size = 0;
-
-    // Marcador de inicio
-    msg_bytes[0] = START_MARKER;
-
-    // Tamanho ocupando 6bits
-    msg_bytes[1] = (msg->size & 0b00111111) << 2;
-
-    // Sequencia 4bis = 2bits anterior e 2 depois
-    uint8_t temp_seq = (msg->sequence & 0b00001100);
-    msg_bytes[1] = msg_bytes[1] | (temp_seq >> 2);
-    msg_bytes[2] = (msg->sequence & 0b00000011) << 6;
-
-    // Typo 6bits = Todos na anterior
-    msg_bytes[2] = msg_bytes[2] | (msg->type & 0b00111111);
-
-    // Copia dados
-    msg_bytes_size = 3;
-    for(int i = 0; i < msg->size; i++){
-        msg_bytes[i + 3] = msg->data_bytes[i];
-        msg_bytes_size++;
-    }
-
-    // Complemento
-    if(msg->size < MSG_MIN_SIZE){
-        for(int i = msg->size; i < MSG_MIN_SIZE; i++){
-            msg_bytes[msg_bytes_size] = 'c';
-            msg_bytes_size++;
-        }
-    }
-    
-    // Paridade ultimos 8 bits
-    msg_bytes[msg_bytes_size] = msg->parity;
-    msg_bytes_size++;
-    
-    send(app_info.socket, msg_bytes, msg_bytes_size, 0); 
-    
-    // Salva mensagem
-    app_info.last_msg = msg;
-    app_info.last_sequence = app_info.sequence;
-    app_info.last_msg_replied = decrementSequence(app_info.target_sequence, true);
-
-    // Incrementa sequencia
-    app_info.sequence = incrementSequence(app_info.sequence);
-}
-
 msg_t *bytesToMessage(vector<uint8_t> buffer, int buffer_size){
     msg_t *msg;
     msg = (msg_t*) calloc(1, sizeof(msg_t));
@@ -222,6 +165,7 @@ msg_t *bytesToMessage(vector<uint8_t> buffer, int buffer_size){
     if(data_size + offset + 3 >= buffer_size){
         return NULL;
     }
+
     // Paridade: 8bits
     // o inicio é depois do:
     // dados iniciais(3 bytes) + tamanho da area de dados + complemento
@@ -231,7 +175,8 @@ msg_t *bytesToMessage(vector<uint8_t> buffer, int buffer_size){
         cout << "Erro paridades não são iguais" << endl;
         // Envia nack
         fstream null_file;
-        send_message(NACK_TYPE, null_file);
+        string param = "" + ((int) msg->parity + '0');
+        send_message(NACK_TYPE, null_file, param);
         return NULL;
     }
     return msg;
@@ -293,6 +238,66 @@ void init_protocol(int type, int socket, int sequence, int target_sequence){
     app_info.last_sequence = -1;
 }
 
+/*
+* Função recebe como parametro uma mensagem e envia ela para o socket
+*/
+void raw_send(msg_t *msg){
+    int max_size = msg->size + 5 + MSG_MIN_SIZE;
+    uint8_t msg_bytes[max_size];
+
+    int msg_bytes_size = 0;
+
+    // Marcador de inicio
+    msg_bytes[0] = START_MARKER;
+
+    // Tamanho ocupando 6bits
+    msg_bytes[1] = (msg->size & 0b00111111) << 2;
+
+    // Sequencia 4bis = 2bits anterior e 2 depois
+    uint8_t temp_seq = (msg->sequence & 0b00001100);
+    msg_bytes[1] = msg_bytes[1] | (temp_seq >> 2);
+    msg_bytes[2] = (msg->sequence & 0b00000011) << 6;
+
+    // Typo 6bits = Todos na anterior
+    msg_bytes[2] = msg_bytes[2] | (msg->type & 0b00111111);
+
+    // Copia dados
+    msg_bytes_size = 3;
+    for(int i = 0; i < msg->size; i++){
+        msg_bytes[i + 3] = msg->data_bytes[i];
+        msg_bytes_size++;
+    }
+
+    // Complemento
+    if(msg->size < MSG_MIN_SIZE){
+        for(int i = msg->size; i < MSG_MIN_SIZE; i++){
+            msg_bytes[msg_bytes_size] = 'c';
+            msg_bytes_size++;
+        }
+    }
+    
+    // Paridade ultimos 8 bits
+    msg_bytes[msg_bytes_size] = msg->parity;
+    msg_bytes_size++;
+    
+    send(app_info.socket, msg_bytes, msg_bytes_size, 0); 
+    
+    // Salva mensagem
+    app_info.last_msg = msg;
+    app_info.last_sequence = msg->sequence;
+    app_info.last_msg_replied = decrementSequence(app_info.target_sequence, true);
+
+    cout << "Enviei: " << app_info.last_sequence << " Nova seq: " << app_info.sequence << endl;
+    // cout << "\tlast_seq = " << app_info.last_sequence << " last_msg_rep = " << app_info.last_msg_replied << endl; 
+    // sleep(2);
+}
+
+void send_socket(msg_t *msg){
+    raw_send(msg);
+    // Incrementa sequencia
+    app_info.sequence = incrementSequence(app_info.sequence);
+}
+
 msg_t *get_message(){
     //cout << "Esperando mensagem" << endl;
     do{
@@ -318,14 +323,21 @@ msg_t *get_message(){
             if(msg->sequence == app_info.target_sequence){
                 // Se for a atual incrementa o contador e retorna a mensagem
                 app_info.target_sequence = incrementSequence(app_info.target_sequence, true);
+                app_info.last_msg_received = msg->sequence;
+                // cout << "Recebi: " << (int) msg->sequence << " espero: " << app_info.target_sequence << endl;
+                // sleep(2);
                 return msg;
             } else if (app_info.last_msg_replied != -1 && msg->sequence == app_info.last_msg_replied) {
-                // cout << "Responde ultima mensagem" << endl;
-                // Se for uma anterior, significa que a resposta foi perdida então é reenviada
-                int seq = app_info.sequence;
-                app_info.sequence = app_info.last_sequence;
-                send_socket(app_info.last_msg);
-                app_info.sequence = seq;
+                // cout << "Responde ultima mensagem " << (int) msg->sequence << " == " << app_info.last_msg_replied << endl;
+                // // sleep(2);
+                
+                // // Se for uma anterior, significa que a resposta foi perdida então é reenviada
+                // int seq = app_info.sequence;
+                // app_info.sequence = app_info.last_sequence;
+                // send_socket(app_info.last_msg);
+                // app_info.sequence = seq;
+            } else {
+                // cout << "Erro recebi: " << (int) msg->sequence << " espero: " << app_info.target_sequence << endl;
             }
         }
     } while(1);
@@ -383,18 +395,21 @@ int send_file(uint8_t type, fstream& data){
     // Envia dados
     long long to_send = fileSize;
     cout << "File size: " << size << "\n";
+
+    vector<msg_t *> buffer_send;
     while(to_send > 0){
-        // Manda 4 pacotes de uma vez
-        int sended = 0;
+        // Limpa o buffer
+        buffer_send.clear();
+
+        // Preenche o buffer
         int bytes_sended = 0;
-        for(sended = 0; sended < WINDOW_SIZE; sended++){
-            // cout << "Enviadas " << app_info.sequence << endl;
-            // Pega tamanho em bytes do bloco a ser enviado
+        while (to_send > 0 && buffer_send.size() != WINDOW_SIZE) {
             int bytes = to_send < DATA_SIZE_BYTES ? to_send : DATA_SIZE_BYTES;
             char *datablock = new char[bytes];
             
             // Le o bloco
             data.read(datablock, bytes);
+            bytes_sended += bytes;
 
             // Converte para vetor e escolhe o tipo correto
             vector<uint8_t> vec_data = charToVector(datablock, bytes);
@@ -402,18 +417,19 @@ int send_file(uint8_t type, fstream& data){
 
             // Cria mensagem e envia
             msg_t *data_msg = new_message(data_type, vec_data);
-            send_socket(data_msg);
-            
-            // Decrementa e verificar se já acabou
-            to_send -= bytes;
-            bytes_sended += bytes;
+            app_info.sequence = incrementSequence(app_info.sequence);
 
-            if(to_send <= 0){
-                break;
-            }
+            buffer_send.push_back(data_msg);
+            to_send -= bytes;
+        }
+        
+        // Envia
+        for(int i = 0; i < buffer_send.size(); i++){
+            raw_send(buffer_send[i]);
         }
 
-        if(sended >= (WINDOW_SIZE - 1)){
+        cout << buffer_send.size() << endl;
+        if(buffer_send.size() == WINDOW_SIZE){
             msg_t *answer = get_message();
             int status = processResponse(answer);
             if(status == ERROR){
@@ -421,16 +437,29 @@ int send_file(uint8_t type, fstream& data){
                 to_send = -1;
                 break;
             } else if (status == RESEND){
+                // Verifica NACK
                 cout << "Resend" << endl;
-                // Volta a sequencia
-                for(int i = 0; i < sended; i++) 
+                int not_sended = WINDOW_SIZE;
+                int bytes_not_sended = 0;
+                // TODO: Arrumar isso
+                if(answer->size > 0 && answer->data_bytes.size() > 0 && (int) answer->data_bytes[0] < app_info.sequence){
+                    for(int i = 0; i < buffer_send.size(); i++) {
+                        if((buffer_send[i])){
+                            not_sended = i;
+                        }
+
+                        bytes_not_sended += (buffer_send[i])->data_bytes.size(); 
+                    }
+                }
+                // // Volta a sequencia
+                for(int i = 0; i < not_sended; i++) 
                     app_info.sequence = decrementSequence(app_info.sequence);
                 
                 // Aumenta quantas ainda deve enviar
-                to_send += sended;
+                to_send += bytes_not_sended;
                 
                 // Volta o cursor
-                data.seekg((-1) * bytes_sended, ios_base::cur);
+                data.seekg((-1) * bytes_not_sended, ios_base::cur);
             }
         }
     }
@@ -471,37 +500,45 @@ int receive_file(uint8_t type, fstream& data) {
     }
 
     int status;
+    int bytes_received;
     // Enquanto não houver erro
+    vector<msg_t *> buffer_receive;
     do {
-        for(int i = 0; i < WINDOW_SIZE; i++){
-            msg_t *msg = get_message();
+        msg_t *msg = get_message();
 
-            // Verfica timmeout (perdeu alguma mensagem da janela)
-            if(msg->type == NACK_TYPE) { 
-                cout << "Ocorreu erro timeout" << "\n";
-                status = RESEND;
-                break;
-            } else if (msg->type == PRINT_TYPE) {                
-                for(int i = 0; i < msg->size; i++){
-                    cout << msg->data_bytes[i];
-                }
-                status = MESSAGE_SENT;
-            } else if (msg->type == DATA_TYPE) {
-                for(int i = 0; i < msg->size; i++){
-                    data << msg->data_bytes[i];
-                }
-                status = MESSAGE_SENT;
-            } else if(msg->type == END_TYPE){
-                status = END_COMMAND;
-                break;
+        // Verfica timmeout (perdeu alguma mensagem da janela)
+        if(msg->type == NACK_TYPE) { 
+            cout << "Ocorreu erro timeout" << "\n";
+            status = RESEND;
+        } else if (msg->type == PRINT_TYPE) {                
+            for(int i = 0; i < msg->size; i++){
+                cout << msg->data_bytes[i];
+            }
+            status = MESSAGE_SENT;
+            buffer_receive.push_back(msg);
+        } else if (msg->type == DATA_TYPE) {
+            for(int i = 0; i < msg->size; i++){
+                data << msg->data_bytes[i];
+                bytes_received++;
+            }
+            status = MESSAGE_SENT;
+            buffer_receive.push_back(msg);
+        } else if(msg->type == END_TYPE){
+            status = END_COMMAND;
+            break;
+        }
+
+        if(buffer_receive.size() == WINDOW_SIZE){
+            cout << "Recebeu buffer" << endl;
+            if(status != RESEND){
+                send_message(ACK_TYPE, null_file);
+                buffer_receive.clear();
             }
         }
-    
-        if(status != RESEND){
-            send_message(ACK_TYPE, null_file);
-        }
+
     } while(status != END_COMMAND);
 
+    cout << "Recebido " << bytes_received << " bytes" << endl;
     return status;
 }
 
