@@ -157,14 +157,15 @@ msg_t *bytesToMessage(vector<uint8_t> buffer, int buffer_size){
             return NULL;
         }
         
+        /*
         if(!problemByte(last_byte)){
             data.push_back((uint8_t) buffer[i + 3]);
         } else {
             msg->size--;
         }
-        last_byte = buffer[i + 3];
+        last_byte = buffer[i + 3];*/
         
-        //data.push_back((uint8_t) buffer[i + 3]);
+        data.push_back((uint8_t) buffer[i + 3]);
         parity^= (uint8_t) buffer[i + 3];
     }
     msg->data_bytes = data;
@@ -212,17 +213,17 @@ msg_t *new_message(uint8_t type, vector<uint8_t> &data) {
     msg->sequence = (app_info.sequence & 0b00001111);
 
     if(data.size() > 0){
-        // msg->size = (data.size() & 0b00111111);
+        msg->size = (data.size() & 0b00111111);
 
-        // msg->data_bytes = data;
+        msg->data_bytes = data;
 
-        // // Calcula paridade
-        // uint8_t parity = 0;
-        // for(auto &bt : data){
-        //     parity ^= bt;
-        // }
+        // Calcula paridade
+        uint8_t parity = 0;
+        for(auto &bt : data){
+            parity ^= bt;
+        }
 
-        
+        /*
         vector<uint8_t> data_msg;
         int size = data.size();
         int i = 0;
@@ -241,7 +242,7 @@ msg_t *new_message(uint8_t type, vector<uint8_t> &data) {
         uint8_t parity = 0;
         for(auto &bt : data_msg){
             parity ^= bt;
-        }
+        } */
        
         msg->parity = parity;
     } else {
