@@ -75,9 +75,9 @@ typedef struct {
     // Para quando a resposta é perdida e é 
     // necessário reenviar a resposta
     msg_t *last_msg; 
-    int last_sequence;
     int last_msg_replied;
     int last_msg_received;
+    int can_retry;
 } app_info_t;
 
 /****** FUNCTIONS ******/

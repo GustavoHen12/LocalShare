@@ -83,33 +83,38 @@ void read_input_user(int *command, string &param_a, string &param_b){
 
     int pos = 0;
     int index = 0;
-    while((pos = line_str.find(" ")) != string::npos){
-        string op = line_str.substr(0, pos);
-        if(index == 0){
-            *command = getCommandCode(op);
+    if(line_str.find(" ") == string::npos) {
+        *command = getCommandCode(line_str);
+    } else {
+        while((pos = line_str.find(" ")) != string::npos){
+            string op = line_str.substr(0, pos);
+            if(index == 0){
+                *command = getCommandCode(op);
 
-            // Verifica se o comando é válido
-            if(*command == -1) {
-                cout << "Comando não encontrado." << endl;
-                return;
+                // Verifica se o comando é válido
+                if(*command == -1) {
+                    cout << "Comando não encontrado." << endl;
+                    return;
+                }
+            } else if (index == 1) {
+                param_a = op;
             }
-        } else if (index == 1) {
-            param_a = op;
+
+            line_str.erase(0, pos + 1);
+            index++;
         }
 
-        line_str.erase(0, pos + 1);
-        index++;
-    }
-
-    if(line_str.size() > 0 && index == 1){
-        param_a = line_str;
-        index++;
-    } else {
-        param_b = line_str;
-        index++;
+        if(line_str.size() > 0 && index == 1){
+            param_a = line_str;
+            index++;
+        } else {
+            param_b = line_str;
+            index++;
+        }
     }
 
     // Verifica se o número de parametros esta correto
+    cout << (*command) << endl;
     if(index == 1 && (*command) != CMD_LS){
         cout << "Número inválido de parametros para esse comando" << endl;
         *command = -1;
