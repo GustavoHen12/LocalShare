@@ -6,6 +6,8 @@
 #define debug_cout(str) do { } while ( false )
 #endif
 
+vector<uint8_t> problem_bytes {(uint8_t) 126, (uint8_t) 136};
+
 app_info_t app_info;
 
 /************ UTIL ************/
@@ -18,6 +20,10 @@ void printMessage(msg_t *msg, string prefix){
         cout << (char)(msg->data_bytes)[i] << " | ";
     }
     cout << endl;
+}
+
+bool problemByte(uint8_t b1){
+    return find(problem_bytes.begin(), problem_bytes.end(), b1) != problem_bytes.end();
 }
 
 vector<uint8_t> charToVector(char *data, int size){
@@ -144,12 +150,18 @@ msg_t *bytesToMessage(vector<uint8_t> buffer, int buffer_size){
     int data_size = 0 | msg->size;
     vector<uint8_t> data;
     uint8_t parity = 0;
+    uint8_t last_byte = 0;
     for (int i = 0; i < data_size; i++){
         // Verifica se o buffer continua valido
         if(i + 3 >= buffer_size){
             return NULL;
         }
-
+        /*
+        if(!problemByte(last_byte)){
+            data.push_back((uint8_t) buffer[i + 3]);
+        }
+        last_byte = buffer[i + 3];
+        */
         data.push_back((uint8_t) buffer[i + 3]);
         parity^= (uint8_t) buffer[i + 3];
     }
@@ -207,6 +219,29 @@ msg_t *new_message(uint8_t type, vector<uint8_t> &data) {
         for(auto &bt : data){
             parity ^= bt;
         }
+
+        /*
+        vector<uint8_t> data_msg;
+        int size = data.size();
+        int i = 0;
+        while(i < size) {
+            data_msg.push_back(data[i]);
+            if(problemByte(data[i])){
+                i++;
+                data_msg.push_back(data[i]);
+                size++;
+            }
+            i++;
+        }
+        msg->data_bytes = data_msg;
+        msg->size = (size & 0b00111111);
+
+        uint8_t parity = 0;
+        for(auto &bt : data_msg){
+            parity ^= bt;
+        }
+        */
+       
         msg->parity = parity;
     } else {
         msg->size = 0;
