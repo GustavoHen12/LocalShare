@@ -352,18 +352,25 @@ msg_t *get_message(){
         if((msg != NULL) && (msg->sequence >= 0)){
             // Verifica se a mensagem é a atual ou a anterior
             if(msg->sequence == app_info.target_sequence){
+                // if((int) msg->sequence == (int) decrementSequence(app_info.sequence)){
+                //     cout << "echo" << endl;
+                //     // continue;
+                // }
                 // Se for a atual incrementa o contador e retorna a mensagem
                 app_info.target_sequence = incrementSequence(app_info.target_sequence, true);
                 app_info.last_msg_received = msg->sequence;
+                // cout << "\nOK: Recebi: " << (int) msg->sequence << " agora esperava: " << (int) app_info.target_sequence << " ultima env: " << (int)(app_info.last_msg)->sequence << " mi seq: " << (int) app_info.sequence << endl;
                 return msg;
-            } else if (app_info.last_msg_replied != -1 && app_info.last_msg_received == msg->sequence && msg->sequence == app_info.last_msg_replied && app_info.can_retry > 0) {
-                // cout << "Responde ultima mensagem " << (int) msg->sequence << " == " << app_info.last_msg_replied << " esperando: " << (int) app_info.target_sequence << endl;
+            } 
+            else if (app_info.last_msg_replied != -1 && app_info.last_msg_received == msg->sequence && msg->sequence == app_info.last_msg_replied && app_info.can_retry > 0) {
+                // cout << "Responde ultima mensagem " << (int) msg->sequence << " == " << app_info.last_msg_replied << " esperando: " << (int) app_info.target_sequence;
                 // Se for uma anterior, significa que a resposta foi perdida então é reenviada
                 raw_send(app_info.last_msg);
                 app_info.can_retry--;
+                // cout << "Agora esperando: " << (int) app_info.target_sequence << endl;
             }
             // else {
-            //     cout << "Recebi: " << (int) msg->sequence << " esperava: " << (int) app_info.target_sequence << endl;
+            //     cout << "Recebi: " << (int) msg->sequence << " esperava: " << (int) app_info.target_sequence << " ultima: " << app_info.last_msg_received << " resp: " << app_info.last_msg_replied << endl;
             // }
         }
     } while(1);
@@ -451,6 +458,7 @@ int send_file(uint8_t type, fstream& data){
         // Envia
         for(int i = 0; i < buffer_send.size(); i++){
             raw_send(buffer_send[i].first);
+            buffer_send[i].second = 1;
         }
 
         if(buffer_send.size() == WINDOW_SIZE){
@@ -564,27 +572,28 @@ int receive_file(uint8_t type, fstream& data) {
                 data << msg->data_bytes[i];
                 bytes_received++;
             }
-            cout << last_seq;
-            if(last_seq == (int)(msg->sequence))
-                cout << "Recebi a mesma novamente" << endl;
             status = MESSAGE_SENT;
             buffer_receive.push_back(msg);
         } else if(msg->type == END_TYPE){
             status = END_COMMAND;
             break;
+        } else {
+            cout << "\nNão reconheci: " << bitset<8>(msg->type) << endl;
+            app_info.target_sequence = decrementSequence(app_info.target_sequence, true);
         }
 
-        if(buffer_receive.size() >= WINDOW_SIZE){
-            // cout << "Recebeu buffer" << endl;
+        // for(int i = 0; i < buffer_receive.size(); i++) cout << " " << (int) (buffer_receive[i])->sequence;
+
+        if(buffer_receive.size() == WINDOW_SIZE){
+            send_message(ACK_TYPE, null_file);
             if(status == MESSAGE_SENT){
-                send_message(ACK_TYPE, null_file);
                 buffer_receive.clear();
             }
         }
 
     } while(status != END_COMMAND);
 
-    cout << "Recebido " << bytes_received << " bytes" << endl;
+    // cout << "Recebido " << bytes_received << " bytes" << endl;
     return status;
 }
 
@@ -649,7 +658,7 @@ int send_message(uint8_t type, fstream& data, string param_str) {
     }
     
     if(message_receive_file(type) && status != ERROR) {
-        cout << "Esperando arquivo" << endl;
+        //cout << "Esperando arquivo" << endl;
         status = receive_file(type, data);
     }
 

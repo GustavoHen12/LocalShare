@@ -114,7 +114,7 @@ void read_input_user(int *command, string &param_a, string &param_b){
     }
 
     // Verifica se o número de parametros esta correto
-    cout << (*command) << endl;
+    // cout << (*command) << endl;
     if(index == 1 && (*command) != CMD_LS){
         cout << "Número inválido de parametros para esse comando" << endl;
         *command = -1;
